@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学习分数云端管理</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .exceed-limit { 
+            background: linear-gradient(135deg, #ff4757 0%, #ff6348 100%) !important; 
+            color: white !important;
+            font-weight: bold;
+            animation: pulse-red 2s infinite;
+        }
+        @keyframes pulse-red {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        .sticky-col { 
+            position: sticky; 
+            left: 0; 
+            background: rgba(255, 255, 255, 0.95);
+            z-index: 20;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 p-4 md:p-8">
+
+    <div class="max-w-7xl mx-auto space-y-6">
+        
+        <!-- 头部 -->
+        <div class="bg-white rounded-2xl shadow-xl p-6">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-800">📊 学习分数云端管理</h1>
+                    <p class="text-gray-600">纯GitHub实现 · 数据文件存储</p>
+                </div>
+                <div class="flex gap-3">
+                    <select id="monthSelect" class="px-4 py-2 border rounded-lg">
+                        <option value="2026-01">2026年1月</option>
+                    </select>
+                    <button onclick="loadData()" class="px-6 py-2 bg-blue-600 text-white rounded-lg">刷新</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 统计 -->
+        <div class="grid grid-cols-4 gap-4">
+            <div class="bg-white rounded-xl p-4 shadow">
+                <div class="text-2xl font-bold" id="stat-total">-</div>
+                <div class="text-gray-500 text-sm">总人数</div>
+            </div>
+            <div class="bg-white rounded-xl p-4 shadow">
+                <div class="text-2xl font-bold" id="stat-avg">-</div>
+                <div class="text-gray-500 text-sm">人均总分</div>
+            </div>
+            <div class="bg-white rounded-xl p-4 shadow">
+                <div class="text-2xl font-bold text-red-600" id="stat-exceed">-</div>
+                <div class="text-gray-500 text-sm">超额人次</div>
+            </div>
+            <div class="bg-white rounded-xl p-4 shadow">
+                <div class="text-2xl font-bold text-orange-600" id="stat-today">-</div>
+                <div class="text-gray-500 text-sm">今日活跃</div>
+            </div>
+        </div>
+
+        <!-- 表格 -->
+        <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+            <div class="p-4 border-b flex justify-between items-center">
+                <h3 class="font-bold text-lg">📋 详细数据</h3>
+                <div class="flex gap-2 text-sm">
+                    <span class="flex items-center gap-1"><span class="w-3 h-3 bg-red-500 rounded-full"></span>超额 (>45分)</span>
+                </div>
+            </div>
+            <div class="overflow-x-auto" style="max-height: 60vh;">
+                <table class="w-full text-sm" id="dataTable">
+                    <thead class="bg-gray-100 sticky top-0">
+                        <tr>
+                            <th class="sticky-col px-4 py-3 text-left">序号</th>
+                            <th class="sticky-col px-4 py-3 text-left" style="left: 60px;">用户名</th>
+                            <th class="px-4 py-3 text-center">当月总分</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <tr><td colspan="3" class="text-center py-8 text-gray-400">加载中...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- 使用说明 -->
+        <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-4 text-sm text-yellow-800">
+            <h4 class="font-bold mb-2">📖 使用说明</h4>
+            <p>1. 数据存储在GitHub仓库的 <code>data/2026-01.json</code> 文件中</p>
+            <p>2. 手机端通过Tampermonkey脚本直接提交数据到GitHub（需要Token）</p>
+            <p>3. 或手动编辑data文件夹中的JSON文件</p>
+        </div>
+    </div>
+
+    <script>
+        const DAILY_LIMIT = 45;
+        
+        async function loadData() {
+            try {
+                const month = document.getElementById('monthSelect').value;
+                const response = await fetch(`./data/${month}.json`);
+                
+                if (!response.ok) {
+                    throw new Error('暂无数据');
+                }
+                
+                const data = await response.json();
+                renderData(data);
+                
+            } catch (e) {
+                document.getElementById('tableBody').innerHTML = 
+                    `<tr><td colspan="3" class="text-center py-8 text-gray-400">
+                        暂无数据，请先上传数据文件到 data/${document.getElementById('monthSelect').value}.json
+                    </td></tr>`;
+                updateStats([]);
+            }
+        }
+        
+        function renderData(data) {
+            const users = Object.values(data);
+            updateStats(users);
+            
+            // 收集所有日期
+            const dateSet = new Set();
+            users.forEach(u => Object.keys(u.dailyScores || {}).forEach(d => dateSet.add(d)));
+            const dates = Array.from(dateSet).sort();
+            
+            // 更新表头
+            const thead = document.querySelector('#dataTable thead tr');
+            thead.innerHTML = `
+                <th class="sticky-col px-4 py-3 text-left bg-gray-100">序号</th>
+                <th class="sticky-col px-4 py-3 text-left bg-gray-100" style="left: 60px;">用户名</th>
+                <th class="px-4 py-3 text-center bg-blue-50 text-blue-600">总分</th>
+                ${dates.map(d => {
+                    const day = new Date(d).getDate();
+                    return `<th class="px-2 py-2 text-center text-xs text-gray-500">${day}日</th>`;
+                }).join('')}
+            `;
+            
+            // 更新表体
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = users.map((user, idx) => {
+                const hasExceed = Object.values(user.dailyScores || {}).some(s => s > DAILY_LIMIT);
+                
+                return `
+                <tr class="hover:bg-gray-50 ${hasExceed ? 'bg-red-50' : ''}">
+                    <td class="sticky-col px-4 py-3 font-bold bg-white">${user.userIndex || idx + 1}</td>
+                    <td class="sticky-col px-4 py-3 font-bold bg-white" style="left: 60px;">
+                        ${user.userName}
+                        ${hasExceed ? '<span class="text-red-500 text-xs">⚠️</span>' : ''}
+                    </td>
+                    <td class="px-4 py-3 text-center font-bold text-blue-600 bg-blue-50">${user.monthlyTotal || 0}</td>
+                    ${dates.map(date => {
+                        const score = (user.dailyScores || {})[date] || 0;
+                        const isExceed = score > DAILY_LIMIT;
+                        return `
+                            <td class="px-1 py-2">
+                                <div class="text-center py-1 rounded ${isExceed ? 'exceed-limit' : (score > 0 ? 'bg-gray-100' : 'text-gray-300')}">
+                                    ${score > 0 ? score : '-'}
+                                </div>
+                            </td>
+                        `;
+                    }).join('')}
+                </tr>
+            `}).join('');
+        }
+        
+        function updateStats(users) {
+            document.getElementById('stat-total').textContent = users.length;
+            
+            const totalScore = users.reduce((sum, u) => sum + (u.monthlyTotal || 0), 0);
+            document.getElementById('stat-avg').textContent = users.length 
+                ? Math.round(totalScore / users.length) : 0;
+            
+            let exceedCount = 0;
+            let todayCount = 0;
+            const today = new Date().toISOString().split('T')[0];
+            
+            users.forEach(u => {
+                Object.entries(u.dailyScores || {}).forEach(([date, score]) => {
+                    if (score > DAILY_LIMIT) exceedCount++;
+                    if (date === today && score > 0) todayCount++;
+                });
+            });
+            
+            document.getElementById('stat-exceed').textContent = exceedCount;
+            document.getElementById('stat-today').textContent = todayCount;
+        }
+        
+        // 页面加载时自动加载
+        loadData();
+    </script>
+</body>
+</html>
