@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>学习分数云端管理</title>
+    <title>全员答题分数云端管理</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .exceed-limit { 
@@ -32,7 +32,7 @@
         <div class="bg-white rounded-2xl shadow-xl p-6">
             <div class="flex flex-col md:flex-row justify-between items-center gap-4">
                 <div>
-                    <h1 class="text-3xl font-bold text-gray-800">📊 学习分数云端管理</h1>
+                    <h1 class="text-3xl font-bold text-gray-800">📊 全员答题分数云端管理</h1>
                     <p class="text-gray-600">纯GitHub实现 · 数据文件存储</p>
                 </div>
                 <div class="flex gap-3">
@@ -88,12 +88,19 @@
             </div>
         </div>
         
-        <!-- 使用说明 -->
+        <!-- 分数说明 -->
         <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-4 text-sm text-yellow-800">
-            <h4 class="font-bold mb-2">📖 使用说明</h4>
-            <p>1. 数据存储在GitHub仓库的 <code>data/2026-01.json</code> 文件中</p>
-            <p>2. 手机端通过Tampermonkey脚本直接提交数据到GitHub（需要Token）</p>
-            <p>3. 或手动编辑data文件夹中的JSON文件</p>
+            <h4 class="font-bold mb-2">📖 分数说明</h4>
+            <p>1. 签到规则：每日签到1分，连续登录每日多1分，上限：每日最多3分</p>
+            <p>2. 知识学习规则：每日学习1个知识点积1分，上限：每日最多1分</p>
+            <p>3. 模拟考试规则：每日及格计3分，满分计4分，上限：每日最多8分</p>
+            <p>4. 手机考试规则：每日及格计6分，满分计8分，上限：每日最多16分</p>
+            <p>5. 视频学习规则：每日视频学习满5分钟积1分，上限：每日最多1分</p>
+            <p>6. 练习时长规则：每日练习有效时长超过2小时加10分，上限：每日最多10分</p>
+            <p>7. 手机练习规则：每日每练习50题加1分，上限：每日最多6分</p>
+            <p>      每日最高积分计算
+                   3 + 1 + 8 + 16 + 1 + 10 + 6 = 45
+                   每日最高可获得 45分 ✅</p>
         </div>
     </div>
 
