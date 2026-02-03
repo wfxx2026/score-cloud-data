@@ -1,0 +1,66 @@
+name: Deploy GitHub Pages
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - 'index.html'
+      - 'data/**'
+      - 'daily-summary/**'
+      - 'reports/**'
+      - '.github/workflows/deploy-pages.yml'
+  workflow_dispatch:
+  repository_dispatch:
+    types: [pages-rebuild]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Ensure directories exist
+        run: |
+          mkdir -p data daily-summary reports
+          # 创建占位文件防止空目录
+          [ "$(ls -A data)" ] || echo '{"placeholder": true}' > data/placeholder.json
+          [ "$(ls -A daily-summary)" ] || echo '{"placeholder": true}' > daily-summary/placeholder.json
+
+      - name: Generate latest.json symlink info
+        run: |
+          # 创建最新数据指针
+          LATEST_DATA=$(ls -t data/*.json 2>/dev/null | grep -v placeholder | head -1)
+          if [ -n "$LATEST_DATA" ]; then
+            echo "{\"latest\": \"$(basename $LATEST_DATA)\"}" > data/latest.json
+          fi
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
