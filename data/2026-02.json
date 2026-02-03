@@ -12,5 +12,209 @@
     "exceedDays": 1,
     "lastUpdate": "2026-02-03T03:53:32.071Z",
     "uploadCount": 2
+  },
+  "auto_刘泽泽": {
+    "userName": "刘泽泽",
+    "userIndex": 2,
+    "deviceId": "github-actions",
+    "dailyScores": {
+      "2026-02-03": 45
+    },
+    "monthlyTotal": 45,
+    "exceedDays": 0,
+    "firstSeen": "2026-02-03T09:23:48.328Z",
+    "lastUpdate": "2026-02-03T09:23:48.329Z"
+  },
+  "auto_权伟": {
+    "userName": "权伟",
+    "userIndex": 3,
+    "deviceId": "github-actions",
+    "dailyScores": {
+      "2026-02-03": 41
+    },
+    "monthlyTotal": 41,
+    "exceedDays": 0,
+    "firstSeen": "2026-02-03T09:23:48.329Z",
+    "lastUpdate": "2026-02-03T09:23:48.329Z"
+  },
+  "auto_惠智诚": {
+    "userName": "惠智诚",
+    "userIndex": 4,
+    "deviceId": "github-actions",
+    "dailyScores": {
+      "2026-02-03": 16
+    },
+    "monthlyTotal": 16,
+    "exceedDays": 0,
+    "firstSeen": "2026-02-03T09:23:48.329Z",
+    "lastUpdate": "2026-02-03T09:23:48.329Z"
+  },
+  "auto_郭佳兴": {
+    "userName": "郭佳兴",
+    "userIndex": 5,
+    "deviceId": "github-actions",
+    "dailyScores": {
+      "2026-02-03": 16
+    },
+    "monthlyTotal": 16,
+    "exceedDays": 0,
+    "firstSeen": "2026-02-03T09:23:48.329Z",
+    "lastUpdate": "2026-02-03T09:23:48.329Z"
+  },
+  "auto_任泽": {
+    "userName": "任泽",
+    "userIndex": 6,
+    "deviceId": "github-actions",
+    "dailyScores": {
+      "2026-02-03": 16
+    },
+    "monthlyTotal": 16,
+    "exceedDays": 0,
+    "firstSeen": "2026-02-03T09:23:48.329Z",
+    "lastUpdate": "2026-02-03T09:23:48.329Z"
+  },
+  "auto_刘国梁": {
+    "userName": "刘国梁",
+    "userIndex": 7,
+    "deviceId": "github-actions",
+    "dailyScores": {
+      "2026-02-03": 45
+    },
+    "monthlyTotal": 45,
+    "exceedDays": 0,
+    "firstSeen": "2026-02-03T09:23:48.329Z",
+    "lastUpdate": "2026-02-03T09:23:48.329Z"
+  },
+  "auto_王佳": {
+    "userName": "王佳",
+    "userIndex": 8,
+    "deviceId": "github-actions",
+    "dailyScores": {
+      "2026-02-03": 45
+    },
+    "monthlyTotal": 45,
+    "exceedDays": 0,
+    "firstSeen": "2026-02-03T09:23:48.329Z",
+    "lastUpdate": "2026-02-03T09:23:48.329Z"
+  },
+  "auto_刘盟涛": {
+    "userName": "刘盟涛",
+    "userIndex": 9,
+    "deviceId": "github-actions",
+    "dailyScores": {
+      "2026-02-03": 45
+    },
+    "monthlyTotal": 45,
+    "exceedDays": 0,
+    "firstSeen": "2026-02-03T09:23:48.329Z",
+    "lastUpdate": "2026-02-03T09:23:48.329Z"
+  },
+  "auto_苏鹏伟": {
+    "userName": "苏鹏伟",
+    "userIndex": 10,
+    "deviceId": "github-actions",
+    "dailyScores": {
+      "2026-02-03": 45
+    },
+    "monthlyTotal": 45,
+    "exceedDays": 0,
+    "firstSeen": "2026-02-03T09:23:48.329Z",
+    "lastUpdate": "2026-02-03T09:23:48.329Z"
+  },
+  "auto_马英": {
+    "userName": "马英",
+    "userIndex": 11,
+    "deviceId": "github-actions",
+    "dailyScores": {
+      "2026-02-03": 45
+    },
+    "monthlyTotal": 45,
+    "exceedDays": 0,
+    "firstSeen": "2026-02-03T09:23:48.329Z",
+    "lastUpdate": "2026-02-03T09:23:48.329Z"
+  },
+  "auto_白鹏刚": {
+    "userName": "白鹏刚",
+    "userIndex": 12,
+    "deviceId": "github-actions",
+    "dailyScores": {
+      "2026-02-03": 45
+    },
+    "monthlyTotal": 45,
+    "exceedDays": 0,
+    "firstSeen": "2026-02-03T09:23:48.329Z",
+    "lastUpdate": "2026-02-03T09:23:48.329Z"
+  },
+  "auto_王佳营": {
+    "userName": "王佳营",
+    "userIndex": 13,
+    "deviceId": "github-actions",
+    "dailyScores": {
+      "2026-02-03": 45
+    },
+    "monthlyTotal": 45,
+    "exceedDays": 0,
+    "firstSeen": "2026-02-03T09:23:48.329Z",
+    "lastUpdate": "2026-02-03T09:23:48.329Z"
+  },
+  "auto_赵鹏飞": {
+    "userName": "赵鹏飞",
+    "userIndex": 14,
+    "deviceId": "github-actions",
+    "dailyScores": {
+      "2026-02-03": 45
+    },
+    "monthlyTotal": 45,
+    "exceedDays": 0,
+    "firstSeen": "2026-02-03T09:23:48.329Z",
+    "lastUpdate": "2026-02-03T09:23:48.329Z"
+  },
+  "auto_张三": {
+    "userName": "张三",
+    "userIndex": 15,
+    "deviceId": "github-actions",
+    "dailyScores": {
+      "2026-02-03": 0
+    },
+    "monthlyTotal": 0,
+    "exceedDays": 0,
+    "firstSeen": "2026-02-03T09:23:48.329Z",
+    "lastUpdate": "2026-02-03T09:23:48.329Z"
+  },
+  "auto_李四": {
+    "userName": "李四",
+    "userIndex": 16,
+    "deviceId": "github-actions",
+    "dailyScores": {
+      "2026-02-03": 0
+    },
+    "monthlyTotal": 0,
+    "exceedDays": 0,
+    "firstSeen": "2026-02-03T09:23:48.329Z",
+    "lastUpdate": "2026-02-03T09:23:48.329Z"
+  },
+  "auto_王五": {
+    "userName": "王五",
+    "userIndex": 17,
+    "deviceId": "github-actions",
+    "dailyScores": {
+      "2026-02-03": 0
+    },
+    "monthlyTotal": 0,
+    "exceedDays": 0,
+    "firstSeen": "2026-02-03T09:23:48.329Z",
+    "lastUpdate": "2026-02-03T09:23:48.329Z"
+  },
+  "auto_赵六": {
+    "userName": "赵六",
+    "userIndex": 18,
+    "deviceId": "github-actions",
+    "dailyScores": {
+      "2026-02-03": 0
+    },
+    "monthlyTotal": 0,
+    "exceedDays": 0,
+    "firstSeen": "2026-02-03T09:23:48.329Z",
+    "lastUpdate": "2026-02-03T09:23:48.329Z"
   }
 }

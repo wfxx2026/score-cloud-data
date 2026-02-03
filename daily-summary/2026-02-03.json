@@ -1,0 +1,101 @@
+{
+  "date": "2026-02-03",
+  "generatedAt": "2026-02-03T09:23:48.327Z",
+  "totalUsers": 17,
+  "successCount": 17,
+  "failCount": 0,
+  "exceedCount": 0,
+  "normalCount": 17,
+  "users": {
+    "刘泽泽": {
+      "score": 45,
+      "isExceed": false,
+      "queryTime": "2026-02-03T09:23:09.204Z"
+    },
+    "权伟": {
+      "score": 41,
+      "isExceed": false,
+      "queryTime": "2026-02-03T09:23:12.136Z"
+    },
+    "惠智诚": {
+      "score": 16,
+      "isExceed": false,
+      "queryTime": "2026-02-03T09:23:14.957Z"
+    },
+    "郭佳兴": {
+      "score": 16,
+      "isExceed": false,
+      "queryTime": "2026-02-03T09:23:17.498Z"
+    },
+    "任泽": {
+      "score": 16,
+      "isExceed": false,
+      "queryTime": "2026-02-03T09:23:19.205Z"
+    },
+    "刘国梁": {
+      "score": 45,
+      "isExceed": false,
+      "queryTime": "2026-02-03T09:23:20.850Z"
+    },
+    "王佳": {
+      "score": 45,
+      "isExceed": false,
+      "queryTime": "2026-02-03T09:23:22.514Z"
+    },
+    "刘盟涛": {
+      "score": 45,
+      "isExceed": false,
+      "queryTime": "2026-02-03T09:23:25.256Z"
+    },
+    "苏鹏伟": {
+      "score": 45,
+      "isExceed": false,
+      "queryTime": "2026-02-03T09:23:27.860Z"
+    },
+    "马英": {
+      "score": 45,
+      "isExceed": false,
+      "queryTime": "2026-02-03T09:23:30.350Z"
+    },
+    "白鹏刚": {
+      "score": 45,
+      "isExceed": false,
+      "queryTime": "2026-02-03T09:23:31.897Z"
+    },
+    "王佳营": {
+      "score": 45,
+      "isExceed": false,
+      "queryTime": "2026-02-03T09:23:33.647Z"
+    },
+    "赵鹏飞": {
+      "score": 45,
+      "isExceed": false,
+      "queryTime": "2026-02-03T09:23:35.214Z"
+    },
+    "张三": {
+      "score": 0,
+      "isExceed": false,
+      "queryTime": "2026-02-03T09:23:39.539Z"
+    },
+    "李四": {
+      "score": 0,
+      "isExceed": false,
+      "queryTime": "2026-02-03T09:23:41.847Z"
+    },
+    "王五": {
+      "score": 0,
+      "isExceed": false,
+      "queryTime": "2026-02-03T09:23:44.187Z"
+    },
+    "赵六": {
+      "score": 0,
+      "isExceed": false,
+      "queryTime": "2026-02-03T09:23:47.525Z"
+    }
+  },
+  "meta": {
+    "source": "github-actions",
+    "version": "2.0",
+    "apiBase": "http://61.150.84.25:100/"
+  }
+}
