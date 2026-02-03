@@ -25,6 +25,13 @@ on:
         description: '强制更新（即使已存在数据）'
         type: boolean
         default: false
+      auto_discover:
+        description: '自动发现用户'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+        default: 'true'
       notify_channel:
         description: '通知渠道'
         type: choice
@@ -83,6 +90,7 @@ jobs:
     outputs:
       fetch_count: ${{ steps.execute.outputs.fetch_count }}
       exceed_count: ${{ steps.execute.outputs.exceed_count }}
+      discovered_count: ${{ steps.execute.outputs.discovered_count }}
       trigger_source: ${{ steps.info.outputs.trigger_source }}
     
     steps:
@@ -125,7 +133,7 @@ jobs:
             echo "target_date=$(date +%Y-%m-%d)" >> $GITHUB_OUTPUT
           fi
       
-      - name: Execute fetch
+      - name: Execute fetch with auto-discover
         id: execute
         env:
           API_BASE_URL: ${{ secrets.API_BASE_URL }}
@@ -134,24 +142,44 @@ jobs:
           EXTRA_USERS: ${{ secrets.EXTRA_USERS }}
           TARGET_DATE: ${{ steps.info.outputs.target_date }}
           FORCE_UPDATE: ${{ github.event.inputs.force_update }}
+          AUTO_DISCOVER: ${{ github.event.inputs.auto_discover || 'true' }}
+          DISCOVER_PAGE_SIZE: '500'
+          MAX_DISCOVER_PAGES: '20'
+          FETCH_DELAY: '800'
         run: |
+          echo "========================================"
+          echo "开始执行分数抓取"
+          echo "日期: ${{ steps.info.outputs.target_date }}"
+          echo "自动发现: ${{ github.event.inputs.auto_discover || 'true' }}"
+          echo "========================================"
+          
           node scripts/fetch-all.js 2>&1 | tee fetch.log
           
+          # 解析日志获取统计数据
           FETCH_COUNT=$(grep -oP '成功抓取: \K\d+' fetch.log || echo "0")
           EXCEED_COUNT=$(grep -oP '超额人数: \K\d+' fetch.log || echo "0")
+          DISCOVERED_COUNT=$(grep -oP '通过API发现 \K\d+' fetch.log || echo "0")
+          TOTAL_USERS=$(grep -oP '最终用户列表: \K\d+' fetch.log || echo "0")
           
           echo "fetch_count=$FETCH_COUNT" >> $GITHUB_OUTPUT
           echo "exceed_count=$EXCEED_COUNT" >> $GITHUB_OUTPUT
+          echo "discovered_count=$DISCOVERED_COUNT" >> $GITHUB_OUTPUT
+          echo "total_users=$TOTAL_USERS" >> $GITHUB_OUTPUT
           
-          echo "### 📊 抓取结果" >> $GITHUB_STEP_SUMMARY
-          echo "- 日期: ${{ steps.info.outputs.target_date }}" >> $GITHUB_STEP_SUMMARY
-          echo "- 触发源: ${{ steps.info.outputs.trigger_source }}" >> $GITHUB_STEP_SUMMARY
-          echo "- 成功抓取: $FETCH_COUNT 人" >> $GITHUB_STEP_SUMMARY
-          echo "- 超额人数: $EXCEED_COUNT 人" >> $GITHUB_STEP_SUMMARY
+          echo "### 📊 抓取结果摘要" >> $GITHUB_STEP_SUMMARY
+          echo "| 指标 | 数值 |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|------|" >> $GITHUB_STEP_SUMMARY
+          echo "| 目标日期 | ${{ steps.info.outputs.target_date }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| 触发源 | ${{ steps.info.outputs.trigger_source }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| API发现用户 | $DISCOVERED_COUNT 人 |" >> $GITHUB_STEP_SUMMARY
+          echo "| 最终用户总数 | $TOTAL_USERS 人 |" >> $GITHUB_STEP_SUMMARY
+          echo "| 成功抓取 | $FETCH_COUNT 人 |" >> $GITHUB_STEP_SUMMARY
+          echo "| 超额人数 | $EXCEED_COUNT 人 |" >> $GITHUB_STEP_SUMMARY
       
       - name: Generate report
         if: steps.execute.outputs.fetch_count != '0'
         run: |
+          echo "生成可视化报表..."
           node scripts/generate-report.js \
             --date ${{ steps.info.outputs.target_date }} \
             --output reports
@@ -170,7 +198,10 @@ jobs:
             echo "⏭️ 无数据变更"
           else
             echo "changed=true" >> $GITHUB_OUTPUT
-            echo "✅ 检测到变更"
+            echo "✅ 检测到数据变更，准备提交"
+            echo ""
+            echo "变更文件列表:"
+            git diff --staged --name-only
           fi
       
       - name: Commit changes
@@ -179,8 +210,9 @@ jobs:
           TIMESTAMP=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
           git commit -m "📊 Daily update: ${{ steps.info.outputs.target_date }} [${{ steps.info.outputs.trigger_source }}]
           
-          - 抓取人数: ${{ steps.execute.outputs.fetch_count }}
-          - 超额人数: ${{ steps.execute.outputs.exceed_count }}
+          - 发现用户: ${{ steps.execute.outputs.discovered_count }} 人
+          - 抓取用户: ${{ steps.execute.outputs.fetch_count }} 人
+          - 超额人数: ${{ steps.execute.outputs.exceed_count }} 人
           - 执行时间: $TIMESTAMP"
       
       - name: Push changes
@@ -190,17 +222,33 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           branch: ${{ github.ref }}
       
+      - name: Upload artifacts
+        if: steps.verify-changed-files.outputs.changed == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: daily-data-${{ steps.info.outputs.target_date }}
+          path: |
+            data/
+            daily-summary/
+            reports/
+            discovered-users.json
+          retention-days: 30
+      
       - name: Trigger Pages redeploy
         if: steps.verify-changed-files.outputs.changed == 'true'
         uses: actions/github-script@v7
         with:
           script: |
-            await github.rest.repos.createDispatchEvent({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              event_type: 'pages-rebuild'
-            });
-        continue-on-error: true
+            try {
+              await github.rest.repos.createDispatchEvent({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                event_type: 'pages-rebuild'
+              });
+              console.log('✅ Pages 重部署已触发');
+            } catch (error) {
+              console.log('⚠️ Pages 重部署失败:', error.message);
+            }
 
   notify:
     runs-on: ubuntu-latest
@@ -222,6 +270,7 @@ jobs:
             - 触发源: ${{ needs.fetch.outputs.trigger_source }}
             - 工作流: ${{ github.workflow }}
             - 运行编号: ${{ github.run_id }}
+            - [查看详细日志](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
             
             ### 可能原因
             1. API Cookie 过期
@@ -229,9 +278,7 @@ jobs:
             3. API 接口变更
             
             ### 手动重试
-            [点击手动触发](https://github.com/${{ github.repository }}/actions/workflows/${{ github.workflow }})
-            
-            @${{ github.repository_owner }}`;
+            [点击手动触发](https://github.com/${{ github.repository }}/actions/workflows/${{ github.workflow }})`;
             
             await github.rest.issues.create({
               owner: context.repo.owner,
@@ -244,30 +291,35 @@ jobs:
       - name: Create exceed alert
         if: |
           needs.fetch.result == 'success' && 
-          needs.fetch.outputs.exceed_count != '0'
+          needs.fetch.outputs.exceed_count != '0' &&
+          needs.fetch.outputs.exceed_count != ''
         uses: actions/github-script@v7
         with:
           script: |
-            const exceedCount = parseInt('${{ needs.fetch.outputs.exceed_count }}');
+            const exceedCount = parseInt('${{ needs.fetch.outputs.exceed_count }}') || 0;
+            if (exceedCount === 0) return;
+            
             const title = `⚠️ 今日发现 ${exceedCount} 人分数超额`;
+            const today = new Date().toISOString().split('T')[0];
             
             const fs = require('fs');
-            const today = new Date().toISOString().split('T')[0];
             const summaryPath = `daily-summary/${today}.json`;
             
             let body = `## 超额提醒\n\n今日检测到 **${exceedCount}** 人分数超过45分限制。\n\n`;
             
             try {
               const data = JSON.parse(fs.readFileSync(summaryPath, 'utf8'));
-              const exceeds = Object.entries(data.users)
+              const exceeds = Object.entries(data.users || {})
                 .filter(([_, u]) => u.isExceed)
+                .sort((a, b) => b[1].score - a[1].score)
                 .map(([name, u]) => `- **${name}**: ${u.score}分`);
               
-              body += '### 超额人员\n' + exceeds.join('\n');
+              body += '### 超额人员列表\n' + exceeds.join('\n');
             } catch(e) {
               body += '详情查看: ' + summaryPath;
             }
             
+            // 检查是否已存在今日提醒
             const issues = await github.rest.issues.listForRepo({
               owner: context.repo.owner,
               repo: context.repo.repo,
