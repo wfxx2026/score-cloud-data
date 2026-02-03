@@ -32,35 +32,24 @@
         <div class="bg-white rounded-2xl shadow-xl p-6">
             <div class="flex flex-col md:flex-row justify-between items-center gap-4">
                 <div>
-                    <h1 class="text-3xl font-bold text-gray-800">📊 全员答题分数云端管理</h1>
+                    <h1 class="text-3xl font-bold text-gray-800">📊 全员答题分数云端查看👀</h1>
                     <p class="text-gray-600">利用平台接口抓取数据 · 数据文件存储</p>
                 </div>
                 <div class="flex gap-3">
                     <select id="monthSelect" class="px-4 py-2 border rounded-lg">
                         <option value="2026-01">2026年1月</option>
+                        <option value="2026-02">2026年2月</option>
                     </select>
-                    <button onclick="loadData()" class="px-6 py-2 bg-blue-600 text-white rounded-lg">刷新</button>
+                    <button onclick="loadData()" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">刷新</button>
                 </div>
             </div>
         </div>
 
         <!-- 统计 -->
-         <div class="grid grid-cols-4 gap-4">
+         <div class="grid grid-cols-1 gap-4">
             <div class="bg-white rounded-xl p-4 shadow">
                 <div class="text-2xl font-bold" id="stat-total">-</div>
                 <div class="text-gray-500 text-sm">总人数</div>
-            </div>
-            <div class="bg-white rounded-xl p-4 shadow">
-                <div class="text-2xl font-bold" id="stat-avg">-</div>
-                <div class="text-gray-500 text-sm">人均总分</div>
-            </div>
-            <div class="bg-white rounded-xl p-4 shadow">
-                <div class="text-2xl font-bold text-red-600" id="stat-exceed">-</div>
-                <div class="text-gray-500 text-sm">超额人次</div>
-            </div>
-            <div class="bg-white rounded-xl p-4 shadow">
-                <div class="text-2xl font-bold text-orange-600" id="stat-today">-</div>
-                <div class="text-gray-500 text-sm">今日活跃</div>
             </div>
         </div>
 
@@ -179,24 +168,6 @@
         
         function updateStats(users) {
             document.getElementById('stat-total').textContent = users.length;
-            
-            const totalScore = users.reduce((sum, u) => sum + (u.monthlyTotal || 0), 0);
-            document.getElementById('stat-avg').textContent = users.length 
-                ? Math.round(totalScore / users.length) : 0;
-            
-            let exceedCount = 0;
-            let todayCount = 0;
-            const today = new Date().toISOString().split('T')[0];
-            
-            users.forEach(u => {
-                Object.entries(u.dailyScores || {}).forEach(([date, score]) => {
-                    if (score > DAILY_LIMIT) exceedCount++;
-                    if (date === today && score > 0) todayCount++;
-                });
-            });
-            
-            document.getElementById('stat-exceed').textContent = exceedCount;
-            document.getElementById('stat-today').textContent = todayCount;
         }
         
         // 页面加载时自动加载
