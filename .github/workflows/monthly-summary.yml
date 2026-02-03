@@ -1,0 +1,136 @@
+name: Monthly Summary
+
+on:
+  schedule:
+    # 每月1号凌晨2点执行（汇总上月数据）
+    - cron: '0 18 1 * *'  # UTC 18:00 = 北京时间 02:00
+  workflow_dispatch:
+    inputs:
+      target_month:
+        description: '目标月份 (YYYY-MM，留空自动判断)'
+        required: false
+        default: ''
+      force_regenerate:
+        description: '强制重新生成'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  pages: write
+
+jobs:
+  summary:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Install dependencies
+        run: npm ci 2>/dev/null || npm install
+      
+      - name: Determine target month
+        id: month
+        run: |
+          if [ -n "${{ github.event.inputs.target_month }}" ]; then
+            echo "month=${{ github.event.inputs.target_month }}" >> $GITHUB_OUTPUT
+          else
+            # 默认为上个月
+            LAST_MONTH=$(date -d "last month" +%Y-%m)
+            echo "month=$LAST_MONTH" >> $GITHUB_OUTPUT
+          fi
+          echo "汇总月份: $(cat $GITHUB_OUTPUT | grep month | cut -d= -f2)"
+      
+      - name: Check if already exists
+        id: check
+        run: |
+          MONTH_FILE="monthly-reports/${{ steps.month.outputs.month }}.json"
+          if [ -f "$MONTH_FILE" ] && [ "${{ github.event.inputs.force_regenerate }}" != "true" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "⏭️ 月度汇总已存在，跳过"
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "✅ 需要生成月度汇总"
+          fi
+      
+      - name: Generate monthly summary
+        if: steps.check.outputs.exists == 'false'
+        id: generate
+        env:
+          TARGET_MONTH: ${{ steps.month.outputs.month }}
+        run: |
+          echo "========================================"
+          echo "开始生成月度汇总: ${{ steps.month.outputs.month }}"
+          echo "========================================"
+          
+          node scripts/monthly-summary.js 2>&1 | tee summary.log
+          
+          TOTAL_USERS=$(grep -oP '总人数: \K\d+' summary.log || echo "0")
+          DATA_DAYS=$(grep -oP '数据天数: \K\d+' summary.log || echo "0")
+          
+          echo "total_users=$TOTAL_USERS" >> $GITHUB_OUTPUT
+          echo "data_days=$DATA_DAYS" >> $GITHUB_OUTPUT
+      
+      - name: Setup Git
+        if: steps.check.outputs.exists == 'false'
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+      
+      - name: Commit monthly reports
+        if: steps.check.outputs.exists == 'false'
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "📊 Monthly summary: ${{ steps.month.outputs.month }}
+          
+          - 汇总人数: ${{ steps.generate.outputs.total_users }} 人
+          - 数据天数: ${{ steps.generate.outputs.data_days }} 天
+          - 生成时间: $(date -u +%Y-%m-%d_%H:%M:%S)"
+          file_pattern: 'monthly-reports/* data/*.json'
+          commit_user_name: 'github-actions[bot]'
+          commit_user_email: 'github-actions[bot]@users.noreply.github.com'
+      
+      - name: Create monthly issue
+        if: steps.check.outputs.exists == 'false'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const month = '${{ steps.month.outputs.month }}';
+            const totalUsers = '${{ steps.generate.outputs.total_users }}';
+            const dataDays = '${{ steps.generate.outputs.data_days }}';
+            
+            const title = `📊 ${month} 月度汇总报告`;
+            const body = `## ${month} 月度学习数据汇总
+            
+            ### 统计概览
+            - **汇总人数**: ${totalUsers} 人
+            - **数据天数**: ${dataDays} 天
+            - **生成时间**: ${new Date().toLocaleString('zh-CN')}
+            
+            ### 查看报表
+            - [月度汇总HTML](https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/monthly-reports/${month}.html)
+            - [月度汇总JSON](./monthly-reports/${month}.json)
+            - [月度汇总CSV](./monthly-reports/${month}.csv)
+            
+            ### 数据文件
+            - [月度数据JSON](./data/${month}.json)
+            
+            ---
+            *自动生成的月度汇总报告*`;
+            
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title,
+              body,
+              labels: ['monthly-report', 'automated']
+            });
