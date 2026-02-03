@@ -181,7 +181,7 @@ class DataManager {
         try {
             const files = await fs.readdir(this.dirs.data);
             for (const file of files) {
-                if (file.endsWith('.json')) {
+                if (file.endsWith('.json') && file !== 'latest.json' && file !== 'placeholder.json') {
                     const content = JSON.parse(
                         await fs.readFile(path.join(this.dirs.data, file), 'utf8')
                     );
