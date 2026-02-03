@@ -1,0 +1,390 @@
+{
+  "discoveredAt": "2026-02-03T10:10:53.803Z",
+  "count": 64,
+  "users": [
+    {
+      "name": "雷成博 ",
+      "personId": "4a34c8f945b147fd9b2180f59f459b1b",
+      "dept": "",
+      "score": 155
+    },
+    {
+      "name": "党志强",
+      "personId": "5edd6ec1-302c-4d68-b989-3bf658283564",
+      "dept": "",
+      "score": 154
+    },
+    {
+      "name": "李世龙",
+      "personId": "fe9b7110860b46cf97d54698e707b557",
+      "dept": "",
+      "score": 153
+    },
+    {
+      "name": "赵盼盼",
+      "personId": "94e8ccec-46f7-4e3f-aba9-749d4591a8d3",
+      "dept": "",
+      "score": 151
+    },
+    {
+      "name": "王丹",
+      "personId": "112865443a0541daa0d6e1f0caf1f5e1",
+      "dept": "",
+      "score": 142
+    },
+    {
+      "name": "陈  凯",
+      "personId": "23ae7bd8-dbc7-48fc-858f-3b486105d53a",
+      "dept": "",
+      "score": 139
+    },
+    {
+      "name": "袁和涛",
+      "personId": "9db3b53189e44656bdf2d3b637e6d64b",
+      "dept": "",
+      "score": 138
+    },
+    {
+      "name": "王  威",
+      "personId": "e6f8b250-66ab-4976-8d68-4b1a50c0a4c8",
+      "dept": "",
+      "score": 130
+    },
+    {
+      "name": "叶晓彤",
+      "personId": "825b6cf0-bb36-488d-a1ae-8aba6a9baa7d",
+      "dept": "",
+      "score": 118
+    },
+    {
+      "name": "史晓龙",
+      "personId": "db545fc4-fcf6-4916-b0e6-3ea43c72819b",
+      "dept": "",
+      "score": 45
+    },
+    {
+      "name": "张良收",
+      "personId": "bbb2fcf0-0b41-4b51-bc25-511729a501ff",
+      "dept": "",
+      "score": 45
+    },
+    {
+      "name": "王佳",
+      "personId": "c9a2d7dad9bc4ed7a20ad5d512266401",
+      "dept": "",
+      "score": 45
+    },
+    {
+      "name": "白鹏刚",
+      "personId": "05ee2aa360744a5a99650c818ffbc030",
+      "dept": "",
+      "score": 45
+    },
+    {
+      "name": "刘泽泽",
+      "personId": "5ffb201c669342349a8dfbb47746b16e",
+      "dept": "",
+      "score": 45
+    },
+    {
+      "name": "王思琦",
+      "personId": "b9f15123-423a-45bc-839d-405580db6707",
+      "dept": "",
+      "score": 45
+    },
+    {
+      "name": "刘国梁",
+      "personId": "e7f7e3283725403686b4ec60276a6ea5",
+      "dept": "",
+      "score": 45
+    },
+    {
+      "name": "赵鹏飞",
+      "personId": "5bc4ffbb-a00d-479f-a72b-7455cbc539f8",
+      "dept": "",
+      "score": 45
+    },
+    {
+      "name": "贺凡",
+      "personId": "a6e4592e8ce34977be814e55cabd3b47",
+      "dept": "",
+      "score": 45
+    },
+    {
+      "name": "杨佳豪",
+      "personId": "9b9b4cf2ab904df7921b0167766c3eac",
+      "dept": "",
+      "score": 45
+    },
+    {
+      "name": "张  聪",
+      "personId": "009f5a94c2d94881a9cace89bdc920dd",
+      "dept": "",
+      "score": 45
+    },
+    {
+      "name": "刘盟涛",
+      "personId": "d2636074782943ecbf47c2cd6b2f6f47",
+      "dept": "",
+      "score": 45
+    },
+    {
+      "name": "王佳营",
+      "personId": "269630a4-d406-4246-bfa8-537049871bef",
+      "dept": "",
+      "score": 45
+    },
+    {
+      "name": "马  英",
+      "personId": "4c4f3e6d-9ab0-4fb1-beb5-bb652057e888",
+      "dept": "",
+      "score": 45
+    },
+    {
+      "name": "苏鹏伟",
+      "personId": "db0419d5-adcf-41af-b962-9f19ce05a2b8",
+      "dept": "",
+      "score": 45
+    },
+    {
+      "name": "张飞龙",
+      "personId": "24254d04-e20a-455e-b064-9415023a6498",
+      "dept": "",
+      "score": 44
+    },
+    {
+      "name": "权  伟",
+      "personId": "f459f90f-b170-4bf3-bf50-ff2ae2eaa58e",
+      "dept": "",
+      "score": 41
+    },
+    {
+      "name": "李龙云",
+      "personId": "0d87948a5dbc4cfeae18bf7dfd210220",
+      "dept": "",
+      "score": 34
+    },
+    {
+      "name": "雷开元",
+      "personId": "2d12a978648e40738ad5568a96bcf787",
+      "dept": "",
+      "score": 30
+    },
+    {
+      "name": "孙景鹏",
+      "personId": "b1495242-c89a-4c4d-898e-389f60289bcd",
+      "dept": "",
+      "score": 30
+    },
+    {
+      "name": "雷  源",
+      "personId": "3c5cb5ea-0e88-4403-b68c-1b3a436ef926",
+      "dept": "",
+      "score": 27
+    },
+    {
+      "name": "陈  超",
+      "personId": "421a93aa-34aa-49b9-ad17-53a579ab6909",
+      "dept": "",
+      "score": 25
+    },
+    {
+      "name": "樊俊文",
+      "personId": "094f24e8362042c3a5044740db3711c6",
+      "dept": "",
+      "score": 25
+    },
+    {
+      "name": "高家新 ",
+      "personId": "2d739df0ab5a436caf6e79cc9902c552",
+      "dept": "",
+      "score": 25
+    },
+    {
+      "name": "付  强",
+      "personId": "90d42365-01c1-46c5-8931-c051323f0963",
+      "dept": "",
+      "score": 25
+    },
+    {
+      "name": "聂宇伦",
+      "personId": "4ca7cc63ee6f453fa517865e71341a9c",
+      "dept": "",
+      "score": 25
+    },
+    {
+      "name": "穆正飞",
+      "personId": "47e3b348dcc145d4b998d40d6b098b1f",
+      "dept": "",
+      "score": 25
+    },
+    {
+      "name": "刘盼杰",
+      "personId": "002d0c97-ac60-4058-8540-94972c22ae17",
+      "dept": "",
+      "score": 25
+    },
+    {
+      "name": "王  涵",
+      "personId": "23ed9421-a4ca-4ec5-ad22-1266b77ff5f7",
+      "dept": "",
+      "score": 25
+    },
+    {
+      "name": "问鹏程",
+      "personId": "2286f8ef-67e1-453e-aaa0-f6998fe10900",
+      "dept": "",
+      "score": 25
+    },
+    {
+      "name": "关和静",
+      "personId": "590c6dc348ce410cbceeb24d3bfac1c4",
+      "dept": "",
+      "score": 24
+    },
+    {
+      "name": "范春阳",
+      "personId": "15e48247c15a43f0867507ae91938cde",
+      "dept": "",
+      "score": 24
+    },
+    {
+      "name": "王炎兵",
+      "personId": "b2467b21a3ac42508695116e34c134d8",
+      "dept": "",
+      "score": 24
+    },
+    {
+      "name": "韦永超",
+      "personId": "0384364fe429480588d166de4c06bf14",
+      "dept": "",
+      "score": 24
+    },
+    {
+      "name": "贺灯辉",
+      "personId": "11dfd757-a66f-4d91-82c8-ff77dbafbc64",
+      "dept": "",
+      "score": 24
+    },
+    {
+      "name": "白杨",
+      "personId": "f35af645e5cc4a0f8bc4288478eb41e2",
+      "dept": "",
+      "score": 24
+    },
+    {
+      "name": "成程",
+      "personId": "a7a0b60a998c4e4184ef2a56c81d7fac",
+      "dept": "",
+      "score": 24
+    },
+    {
+      "name": "李铭学",
+      "personId": "8e1a33ee-4d81-40ae-b374-c89f11393231",
+      "dept": "",
+      "score": 24
+    },
+    {
+      "name": "贾之玮",
+      "personId": "e3772a59292646bf8776cc653e937dc5",
+      "dept": "",
+      "score": 24
+    },
+    {
+      "name": "何非凡",
+      "personId": "92112efc49d049ada603b2b75af5d9ac",
+      "dept": "",
+      "score": 24
+    },
+    {
+      "name": "郑  丹",
+      "personId": "0f7809ac-8d1e-4839-9892-48075a5e0d79",
+      "dept": "",
+      "score": 24
+    },
+    {
+      "name": "李欣",
+      "personId": "0cbdfd580db34f219756d90fcb7acbae",
+      "dept": "",
+      "score": 23
+    },
+    {
+      "name": "刘万里",
+      "personId": "67ca8a7d892343048e763ffb6bfd119b",
+      "dept": "",
+      "score": 22
+    },
+    {
+      "name": "罗森",
+      "personId": "20ed859c266a41f99647e20820362af8",
+      "dept": "",
+      "score": 22
+    },
+    {
+      "name": "李治",
+      "personId": "c9b3309d754440b287ebb45755173fcf",
+      "dept": "",
+      "score": 22
+    },
+    {
+      "name": "武伟",
+      "personId": "6bfc2abd775d41c68b9171350f5d62d9",
+      "dept": "",
+      "score": 22
+    },
+    {
+      "name": "车新兴",
+      "personId": "4a45b57c-6c4f-4661-8853-5cbef501a6de",
+      "dept": "",
+      "score": 22
+    },
+    {
+      "name": "张瑞轩",
+      "personId": "a5dc43cac3914f609435fa795cc063dd",
+      "dept": "",
+      "score": 21
+    },
+    {
+      "name": "李佳辉",
+      "personId": "f47401fb9e0b42aa85a0b72d68f48527",
+      "dept": "",
+      "score": 20
+    },
+    {
+      "name": "滑国庆",
+      "personId": "01aa36ad-c792-4a93-ae82-eef93b590785",
+      "dept": "",
+      "score": 18
+    },
+    {
+      "name": "任泽",
+      "personId": "fc6c6ea42eb843818db4b7f79cc1b845",
+      "dept": "",
+      "score": 16
+    },
+    {
+      "name": "郭佳兴",
+      "personId": "a5b5505e-26f0-477d-905c-0f1b0b5068d4",
+      "dept": "",
+      "score": 16
+    },
+    {
+      "name": "惠智诚",
+      "personId": "b3aba037f8cf440b8bab30eb2fe9834e",
+      "dept": "",
+      "score": 16
+    },
+    {
+      "name": "王生华",
+      "personId": "cc2d739a-87ae-4375-b64f-50ff1de021c5",
+      "dept": "",
+      "score": 16
+    },
+    {
+      "name": "刘勇杰",
+      "personId": "aa0b028d-ac47-4db0-af55-f20deac1de68",
+      "dept": "",
+      "score": 15
+    }
+  ]
+}
