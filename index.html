@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>全员答题分数云端管理</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        
+        .exceed-limit {
+            background: linear-gradient(135deg, #ff4757 0%, #ff6348 100%) !important;
+            color: white !important;
+            font-weight: bold;
+            animation: pulse-red 2s infinite;
+        }
+        
+        @keyframes pulse-red {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .sticky-col {
+            position: sticky;
+            left: 0;
+            background: rgba(255, 255, 255, 0.98);
+            z-index: 20;
+            backdrop-filter: blur(10px);
+        }
+        
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .loading-spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3b82f6;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 p-4 md:p-8">
+    <div class="max-w-7xl mx-auto space-y-6">
+        
+        <!-- 头部 -->
+        <div class="glass-effect rounded-2xl shadow-xl p-6 fade-in">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-800 flex items-center gap-3">
+                        📊 全员答题分数云端查看
+                    </h1>
+                    <p class="text-gray-600 mt-2">利用GitHub Actions自动抓取 · 数据文件存储 · 实时可视化</p>
+                </div>
+                <div class="flex gap-3 items-center">
+                    <select id="monthSelect" class="px-4 py-2 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition">
+                    </select>
+                    <button onclick="loadData()" class="px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition transform hover:scale-105 flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                        刷新
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 统计卡片 -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 fade-in" style="animation-delay: 0.1s">
+            <div class="glass-effect rounded-xl p-4 shadow hover:shadow-lg transition">
+                <div class="text-3xl font-bold text-blue-600" id="stat-total">-</div>
+                <div class="text-gray-500 text-sm mt-1">总人数</div>
+            </div>
+            <div class="glass-effect rounded-xl p-4 shadow hover:shadow-lg transition">
+                <div class="text-3xl font-bold text-purple-600" id="stat-avg">-</div>
+                <div class="text-gray-500 text-sm mt-1">平均分</div>
+            </div>
+            <div class="glass-effect rounded-xl p-4 shadow hover:shadow-lg transition">
+                <div class="text-3xl font-bold text-red-500" id="stat-exceed">-</div>
+                <div class="text-gray-500 text-sm mt-1">超额人数</div>
+            </div>
+            <div class="glass-effect rounded-xl p-4 shadow hover:shadow-lg transition">
+                <div class="text-3xl font-bold text-green-600" id="stat-max">-</div>
+                <div class="text-gray-500 text-sm mt-1">最高总分</div>
+            </div>
+        </div>
+
+        <!-- 图表区域 -->
+        <div class="glass-effect rounded-2xl shadow-xl p-6 fade-in" style="animation-delay: 0.2s">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-bold text-lg text-gray-800">📈 分数分布</h3>
+                <div class="flex gap-2 text-sm">
+                    <span class="flex items-center gap-1"><span class="w-3 h-3 bg-red-500 rounded-full"></span>超额(>45)</span>
+                    <span class="flex items-center gap-1"><span class="w-3 h-3 bg-green-500 rounded-full"></span>正常</span>
+                </div>
+            </div>
+            <div id="chart-container" class="h-64 flex items-end justify-around gap-2 overflow-x-auto pb-2">
+            </div>
+        </div>
+
+        <!-- 数据表格 -->
+        <div class="glass-effect rounded-2xl shadow-xl overflow-hidden fade-in" style="animation-delay: 0.3s">
+            <div class="p-4 border-b border-gray-200 flex justify-between items-center bg-white/50">
+                <h3 class="font-bold text-lg text-gray-800">📋 详细数据</h3>
+                <div class="flex gap-2">
+                    <button onclick="exportCSV()" class="px-4 py-2 text-sm bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition flex items-center gap-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        导出CSV
+                    </button>
+                </div>
+            </div>
+            <div class="overflow-auto" style="max-height: 60vh;">
+                <table class="w-full text-sm" id="dataTable">
+                    <thead class="bg-gray-100 sticky top-0 z-30">
+                        <tr id="tableHeader">
+                            <th class="sticky-col px-4 py-3 text-left font-semibold text-gray-700">序号</th>
+                            <th class="sticky-col px-4 py-3 text-left font-semibold text-gray-700" style="left: 80px;">用户名</th>
+                            <th class="px-4 py-3 text-center font-semibold text-blue-600 bg-blue-50">当月总分</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <tr>
+                            <td colspan="3" class="text-center py-12">
+                                <div class="loading-spinner mx-auto mb-4"></div>
+                                <p class="text-gray-400">加载中...</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 分数说明 -->
+        <div class="glass-effect border-l-4 border-yellow-400 rounded-xl p-6 text-sm text-gray-700 fade-in" style="animation-delay: 0.4s">
+            <h4 class="font-bold mb-3 text-lg flex items-center gap-2">
+                <svg class="w-5 h-5 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                分数说明
+            </h4>
+            <div class="grid md:grid-cols-2 gap-3">
+                <p><span class="font-medium text-blue-600">1.</span> 签到规则：每日签到1分，连续登录每日多1分，上限：每日最多3分</p>
+                <p><span class="font-medium text-blue-600">2.</span> 知识学习规则：每日学习1个知识点积1分，上限：每日最多1分</p>
+                <p><span class="font-medium text-blue-600">3.</span> 模拟考试规则：每日及格计3分，满分计4分，上限：每日最多8分</p>
+                <p><span class="font-medium text-blue-600">4.</span> 手机考试规则：每日及格计6分，满分计8分，上限：每日最多16分</p>
+                <p><span class="font-medium text-blue-600">5.</span> 视频学习规则：每日视频学习满5分钟积1分，上限：每日最多1分</p>
+                <p><span class="font-medium text-blue-600">6.</span> 练习时长规则：每日练习有效时长超过2小时加10分，上限：每日最多10分</p>
+                <p><span class="font-medium text-blue-600">7.</span> 手机练习规则：每日每练习50题加1分，上限：每日最多6分</p>
+            </div>
+            <div class="mt-4 p-3 bg-yellow-100 rounded-lg text-center font-medium">
+                每日最高积分计算：3 + 1 + 8 + 16 + 1 + 10 + 6 = 45 分 ✅
+            </div>
+        </div>
+
+        <!-- 页脚 -->
+        <div class="text-center text-gray-500 text-sm py-4 fade-in" style="animation-delay: 0.5s">
+            <p>数据自动更新于每日 23:59 | 由 GitHub Actions 驱动</p>
+            <p class="mt-1">最后更新：<span id="lastUpdate">-</span></p>
+        </div>
+    </div>
+
+    <script>
+        const DAILY_LIMIT = 45;
+        let currentData = null;
+        let currentMonth = '';
+
+        function generateMonthOptions() {
+            const select = document.getElementById('monthSelect');
+            const now = new Date();
+            
+            for (let i = 0; i < 12; i++) {
+                const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                const value = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+                const label = i === 0 ? '本月' : i === 1 ? '上个月' : `${d.getFullYear()}年${d.getMonth() + 1}月`;
+                
+                const option = document.createElement('option');
+                option.value = value;
+                option.textContent = label;
+                if (i === 0) option.selected = true;
+                select.appendChild(option);
+            }
+            
+            currentMonth = select.value;
+            select.addEventListener('change', (e) => {
+                currentMonth = e.target.value;
+                loadData();
+            });
+        }
+
+        async function loadData() {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="3" class="text-center py-12">
+                        <div class="loading-spinner mx-auto mb-4"></div>
+                        <p class="text-gray-400">加载中...</p>
+                    </td>
+                </tr>
+            `;
+            
+            try {
+                const response = await fetch(`./data/${currentMonth}.json?t=${Date.now()}`);
+                if (!response.ok) throw new Error('暂无数据');
+                
+                const data = await response.json();
+                currentData = data;
+                renderData(data);
+                updateLastUpdate();
+            } catch (e) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="100" class="text-center py-12 text-gray-400">
+                            <div class="mb-4 text-6xl">📭</div>
+                            <p>暂无数据</p>
+                            <p class="text-sm mt-2">请确保数据文件已上传到 data/${currentMonth}.json</p>
+                        </td>
+                    </tr>
+                `;
+                updateStats([]);
+                document.getElementById('chart-container').innerHTML = '<div class="text-gray-400 w-full text-center">暂无数据</div>';
+            }
+        }
+
+        function renderData(data) {
+            const users = Object.values(data).filter(u => u.userName);
+            updateStats(users);
+            renderChart(users);
+            renderTable(users);
+        }
+
+        function updateStats(users) {
+            const total = users.length;
+            const avg = total > 0 ? Math.round(users.reduce((sum, u) => sum + (u.monthlyTotal || 0), 0) / total) : 0;
+            const exceed = users.filter(u => Object.values(u.dailyScores || {}).some(s => s > DAILY_LIMIT)).length;
+            const max = total > 0 ? Math.max(...users.map(u => u.monthlyTotal || 0)) : 0;
+
+            animateNumber('stat-total', total);
+            animateNumber('stat-avg', avg);
+            animateNumber('stat-exceed', exceed);
+            animateNumber('stat-max', max);
+        }
+
+        function animateNumber(id, target) {
+            const el = document.getElementById(id);
+            const start = parseInt(el.textContent) || 0;
+            const duration = 500;
+            const startTime = performance.now();
+
+            function update(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const easeProgress = 1 - Math.pow(1 - progress, 3);
+                const current = Math.round(start + (target - start) * easeProgress);
+                
+                el.textContent = current;
+                
+                if (progress < 1) {
+                    requestAnimationFrame(update);
+                }
+            }
+            
+            requestAnimationFrame(update);
+        }
+
+        function renderChart(users) {
+            const container = document.getElementById('chart-container');
+            if (users.length === 0) {
+                container.innerHTML = '<div class="text-gray-400 w-full text-center">暂无数据</div>';
+                return;
+            }
+
+            const sorted = [...users].sort((a, b) => (b.monthlyTotal || 0) - (a.monthlyTotal || 0)).slice(0, 20);
+            const maxScore = Math.max(...sorted.map(u => u.monthlyTotal || 0), 1);
+
+            container.innerHTML = sorted.map(user => {
+                const score = user.monthlyTotal || 0;
+                const hasExceed = Object.values(user.dailyScores || {}).some(s => s > DAILY_LIMIT);
+                const height = maxScore > 0 ? (score / maxScore * 100) : 0;
+                
+                return `
+                    <div class="flex flex-col items-center gap-1 min-w-[40px]">
+                        <div class="text-xs text-gray-500 truncate w-full text-center" title="${user.userName}">
+                            ${user.userName.substring(0, 2)}
+                        </div>
+                        <div class="w-8 rounded-t-lg transition-all duration-500 hover:opacity-80 relative group cursor-pointer ${hasExceed ? 'exceed-limit' : 'bg-gradient-to-t from-blue-500 to-purple-500'}" 
+                             style="height: ${Math.max(height, 5)}%">
+                            <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition pointer-events-none whitespace-nowrap z-10">
+                                ${user.userName}: ${score}分
+                            </div>
+                        </div>
+                        <div class="text-xs font-medium ${hasExceed ? 'text-red-500' : 'text-gray-600'}">${score}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderTable(users) {
+            const dateSet = new Set();
+            users.forEach(u => Object.keys(u.dailyScores || {}).forEach(d => dateSet.add(d)));
+            const dates = Array.from(dateSet).sort();
+
+            const header = document.getElementById('tableHeader');
+            header.innerHTML = `
+                <th class="sticky-col px-4 py-3 text-left font-semibold text-gray-700 bg-gray-100">序号</th>
+                <th class="sticky-col px-4 py-3 text-left font-semibold text-gray-700 bg-gray-100" style="left: 80px;">用户名</th>
+                <th class="px-4 py-3 text-center font-semibold text-blue-600 bg-blue-50">当月总分</th>
+                ${dates.map(d => {
+                    const day = new Date(d).getDate();
+                    const weekday = ['日', '一', '二', '三', '四', '五', '六'][new Date(d).getDay()];
+                    return `<th class="px-2 py-2 text-center text-xs text-gray-500 bg-gray-50 min-w-[50px]">
+                        <div>${day}日</div>
+                        <div class="text-gray-400 scale-75">周${weekday}</div>
+                    </th>`;
+                }).join('')}
+            `;
+
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = users.map((user, idx) => {
+                const hasExceed = Object.values(user.dailyScores || {}).some(s => s > DAILY_LIMIT);
+                const exceedDays = Object.entries(user.dailyScores || {}).filter(([_, s]) => s > DAILY_LIMIT).map(([d, s]) => `${d.slice(5)}(${s}分)`).join('、');
+                
+                return `
+                    <tr class="hover:bg-blue-50 transition ${hasExceed ? 'bg-red-50' : ''}">
+                        <td class="sticky-col px-4 py-3 font-medium text-gray-600 bg-white">${user.userIndex || idx + 1}</td>
+                        <td class="sticky-col px-4 py-3 font-semibold text-gray-800 bg-white" style="left: 80px;">
+                            <div class="flex items-center gap-2">
+                                ${user.userName}
+                                ${hasExceed ? `<span class="text-red-500 text-xs" title="超额日期：${exceedDays}">⚠️</span>` : ''}
+                            </div>
+                        </td>
+                        <td class="px-4 py-3 text-center font-bold text-blue-600 bg-blue-50/50">${user.monthlyTotal || 0}</td>
+                        ${dates.map(date => {
+                            const score = (user.dailyScores || {})[date] || 0;
+                            const isExceed = score > DAILY_LIMIT;
+                            return `
+                                <td class="px-1 py-2">
+                                    <div class="text-center py-1.5 rounded text-sm font-medium transition ${isExceed ? 'exceed-limit' : (score > 0 ? 'bg-gray-100 text-gray-700' : 'text-gray-300')}">
+                                        ${score > 0 ? score : '-'}
+                                    </div>
+                                </td>
+                            `;
+                        }).join('')}
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function exportCSV() {
+            if (!currentData) {
+                alert('暂无数据可导出');
+                return;
+            }
+
+            const users = Object.values(currentData);
+            const dateSet = new Set();
+            users.forEach(u => Object.keys(u.dailyScores || {}).forEach(d => dateSet.add(d)));
+            const dates = Array.from(dateSet).sort();
+
+            let csv = '序号,用户名,当月总分,超额天数,' + dates.join(',') + '\n';
+            
+            users.forEach((user, idx) => {
+                const exceedDays = Object.values(user.dailyScores || {}).filter(s => s > DAILY_LIMIT).length;
+                const row = [
+                    user.userIndex || idx + 1,
+                    user.userName,
+                    user.monthlyTotal || 0,
+                    exceedDays,
+                    ...dates.map(d => (user.dailyScores || {})[d] || 0)
+                ];
+                csv += row.join(',') + '\n';
+            });
+
+            const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `分数数据_${currentMonth}.csv`;
+            link.click();
+        }
+
+        function updateLastUpdate() {
+            const now = new Date();
+            document.getElementById('lastUpdate').textContent = now.toLocaleString('zh-CN');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            generateMonthOptions();
+            loadData();
+        });
+    </script>
+</body>
+</html>
