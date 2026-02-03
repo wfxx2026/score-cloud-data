@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 /**
- * 每日分数抓取脚本
- * 支持环境变量或命令行参数
+ * 每日分数抓取脚本 - 支持自动获取用户列表
  */
 
 const axios = require('axios');
@@ -11,26 +10,23 @@ const { existsSync, mkdirSync } = require('fs');
 
 // ==================== 配置 ====================
 const CONFIG = {
-    // API配置（优先从环境变量读取）
     apiBaseUrl: process.env.API_BASE_URL || '',
     personId: process.env.API_PERSON_ID || '',
     cookie: process.env.API_COOKIE || '',
-    
-    // 行为配置
     delay: parseInt(process.env.FETCH_DELAY) || 800,
     pageSize: 100,
     maxPage: 10,
     dailyLimit: 45,
     maxRetries: 3,
-    
-    // 日期配置
     targetDate: process.env.TARGET_DATE || new Date().toISOString().split('T')[0],
     forceUpdate: process.env.FORCE_UPDATE === 'true',
-    
-    // 路径配置
     dataDir: process.env.DATA_DIR || 'data',
     summaryDir: process.env.SUMMARY_DIR || 'daily-summary',
-    reportDir: process.env.REPORT_DIR || 'reports'
+    reportDir: process.env.REPORT_DIR || 'reports',
+    // 新增：自动发现用户配置
+    autoDiscover: process.env.AUTO_DISCOVER !== 'false', // 默认开启
+    discoverPageSize: 500, // 每次获取用户数
+    maxDiscoverPages: 20 // 最大发现页数
 };
 
 // ==================== 工具函数 ====================
@@ -59,8 +55,7 @@ function formatDate(date) {
 
 function log(level, message) {
     const timestamp = new Date().toISOString();
-    const prefix = `[${timestamp}] [${level.toUpperCase()}]`;
-    console.log(`${prefix} ${message}`);
+    console.log(`[${timestamp}] [${level.toUpperCase()}] ${message}`);
 }
 
 // ==================== API 客户端 ====================
@@ -102,6 +97,7 @@ class ScoreAPI {
         }
     }
 
+    // 查询用户分数
     async queryType(userName, type, begin, end) {
         let page = 1;
         
@@ -146,12 +142,97 @@ class ScoreAPI {
     }
 
     async queryUser(userName, begin, end) {
-        // 先查单位(type=1)，再查集团(type=0)
         let score = await this.queryType(userName, 1, begin, end);
         if (score > 0) return score;
+        return await this.queryType(userName, 0, begin, end);
+    }
+
+    // ==================== 新增：自动发现所有用户 ====================
+    
+    /**
+     * 从排名列表获取所有用户
+     */
+    async discoverAllUsers(date) {
+        log('info', '开始自动发现用户列表...');
+        const users = new Map(); // 使用 Map 去重
         
-        score = await this.queryType(userName, 0, begin, end);
-        return score;
+        // 尝试两种类型：1=单位，0=集团
+        for (const type of [1, 0]) {
+            let page = 1;
+            let emptyCount = 0;
+            
+            while (page <= CONFIG.maxDiscoverPages && emptyCount < 3) {
+                try {
+                    const data = {
+                        pid: Esdt(this.personId),
+                        page: page,
+                        rows: CONFIG.discoverPageSize,
+                        begin: Esdt(date),
+                        end: Esdt(date),
+                        type: type
+                    };
+
+                    log('info', `获取排名列表: type=${type}, page=${page}`);
+                    const res = await this.request('/ArchiveManger/D_PersonAccumulate/GetAccumulateRankingListOne', data);
+                    
+                    if (!res || !Array.isArray(res.data) || res.data.length === 0) {
+                        emptyCount++;
+                        if (emptyCount >= 3) {
+                            log('info', `类型${type}连续3页无数据，停止获取`);
+                            break;
+                        }
+                    } else {
+                        emptyCount = 0;
+                        
+                        // 提取用户信息
+                        for (const item of res.data) {
+                            if (item.PersonName && item.PersonId) {
+                                users.set(item.PersonName, {
+                                    name: item.PersonName,
+                                    personId: item.PersonId,
+                                    dept: item.DepartmentName || '',
+                                    score: item.AllCount || 0
+                                });
+                            }
+                        }
+                        
+                        log('info', `类型${type}第${page}页: 获取${res.data.length}人，累计${users.size}人`);
+                    }
+                    
+                    // 如果返回数据少于请求数，说明已到末尾
+                    if (res.data.length < CONFIG.discoverPageSize) {
+                        log('info', `类型${type}数据获取完毕`);
+                        break;
+                    }
+                    
+                    page++;
+                    await sleep(300); // 避免请求过快
+                    
+                } catch (error) {
+                    log('error', `获取第${page}页失败: ${error.message}`);
+                    break;
+                }
+            }
+        }
+        
+        const userList = Array.from(users.values());
+        log('info', `用户发现完成，共找到 ${userList.length} 个唯一用户`);
+        return userList;
+    }
+
+    /**
+     * 获取用户详细信息（备用接口）
+     */
+    async getUserDetail(personId) {
+        try {
+            const data = {
+                pid: Esdt(personId)
+            };
+            const res = await this.request('/ArchiveManger/D_PersonAccumulate/GetPersonDetail', data);
+            return res;
+        } catch (e) {
+            return null;
+        }
     }
 }
 
@@ -166,7 +247,6 @@ class DataManager {
     }
 
     async init() {
-        // 确保目录存在
         Object.values(this.dirs).forEach(dir => {
             if (!existsSync(dir)) {
                 mkdirSync(dir, { recursive: true });
@@ -215,6 +295,18 @@ class DataManager {
         return Array.from(users);
     }
 
+    // 保存发现的完整用户列表
+    async saveDiscoveredUsers(users) {
+        const filePath = 'discovered-users.json';
+        const data = {
+            discoveredAt: new Date().toISOString(),
+            count: users.length,
+            users: users
+        };
+        await fs.writeFile(filePath, JSON.stringify(data, null, 2));
+        log('info', `已保存用户列表到 ${filePath}`);
+    }
+
     async checkExisting(date) {
         const summaryFile = path.join(this.dirs.summary, `${date}.json`);
         try {
@@ -222,7 +314,7 @@ class DataManager {
             const age = Date.now() - stats.mtime.getTime();
             return {
                 exists: true,
-                age: Math.floor(age / 1000 / 60), // 分钟
+                age: Math.floor(age / 1000 / 60),
                 path: summaryFile
             };
         } catch {
@@ -249,7 +341,6 @@ class DataManager {
             log('info', `创建新的月度数据文件: ${filePath}`);
         }
 
-        // 更新每个用户的数据
         Object.entries(results).forEach(([name, data]) => {
             const userId = `auto_${name}`;
             
@@ -269,7 +360,6 @@ class DataManager {
             monthlyData[userId].dailyScores[date] = data.score;
             monthlyData[userId].lastUpdate = new Date().toISOString();
 
-            // 重新计算统计
             const scores = Object.values(monthlyData[userId].dailyScores);
             monthlyData[userId].monthlyTotal = scores.reduce((a, b) => a + b, 0);
             monthlyData[userId].exceedDays = scores.filter(s => s > CONFIG.dailyLimit).length;
@@ -287,7 +377,7 @@ async function main() {
     log('info', '========================================');
     log('info', '每日分数抓取任务启动');
     log('info', `目标日期: ${CONFIG.targetDate}`);
-    log('info', `强制更新: ${CONFIG.forceUpdate}`);
+    log('info', `自动发现用户: ${CONFIG.autoDiscover}`);
     log('info', '========================================');
 
     // 验证配置
@@ -310,19 +400,45 @@ async function main() {
         }
     }
 
-    // 获取用户列表
-    const users = await dm.getUserList();
-    log('info', `找到 ${users.length} 个用户`);
-
-    if (users.length === 0) {
-        log('error', '用户列表为空，请先添加用户');
-        process.exit(1);
-    }
-
     // 创建API客户端
     const api = new ScoreAPI(CONFIG);
 
-    // 抓取数据
+    // ==================== 获取用户列表 ====================
+    let users = [];
+    let discoveredUsers = [];
+
+    // 方式1：自动发现所有用户（如果开启）
+    if (CONFIG.autoDiscover) {
+        try {
+            discoveredUsers = await api.discoverAllUsers(CONFIG.targetDate);
+            if (discoveredUsers.length > 0) {
+                // 保存发现的完整用户列表
+                await dm.saveDiscoveredUsers(discoveredUsers);
+                // 只提取姓名用于查询
+                users = discoveredUsers.map(u => u.name);
+                log('info', `通过API发现 ${users.length} 个用户`);
+            }
+        } catch (e) {
+            log('error', `自动发现用户失败: ${e.message}`);
+        }
+    }
+
+    // 方式2：如果自动发现失败或关闭，使用本地列表
+    if (users.length === 0) {
+        users = await dm.getUserList();
+        log('info', `从本地获取 ${users.length} 个用户`);
+    }
+
+    // 合并去重
+    users = [...new Set(users)];
+    log('info', `最终用户列表: ${users.length} 人`);
+
+    if (users.length === 0) {
+        log('error', '用户列表为空，请先添加用户或开启自动发现');
+        process.exit(1);
+    }
+
+    // ==================== 抓取数据 ====================
     const results = {};
     let successCount = 0;
     let failCount = 0;
@@ -345,7 +461,6 @@ async function main() {
             if (isExceed) exceedCount++;
             successCount++;
 
-            // 成功延迟
             await sleep(CONFIG.delay);
         } catch (error) {
             log('error', `查询失败 ${name}: ${error.message}`);
@@ -357,12 +472,11 @@ async function main() {
             };
             failCount++;
             
-            // 失败后增加延迟
             await sleep(CONFIG.delay * 2);
         }
     }
 
-    // 生成汇总
+    // ==================== 保存结果 ====================
     const summary = {
         date: CONFIG.targetDate,
         generatedAt: new Date().toISOString(),
@@ -374,16 +488,17 @@ async function main() {
         users: results,
         meta: {
             source: 'github-actions',
-            version: '2.0',
-            apiBase: CONFIG.apiBaseUrl.replace(/\/\/.*@/, '//***@') // 脱敏
+            version: '2.1',
+            autoDiscover: CONFIG.autoDiscover,
+            discoveredCount: discoveredUsers.length,
+            apiBase: CONFIG.apiBaseUrl.replace(/\/\/.*@/, '//***@')
         }
     };
 
-    // 保存数据
     await dm.saveSummary(CONFIG.targetDate, summary);
     const totalUsers = await dm.updateMonthlyData(CONFIG.targetDate, results);
 
-    // 输出结果（供GitHub Actions解析）
+    // 输出结果
     log('info', '========================================');
     log('info', '抓取完成');
     log('info', `成功抓取: ${successCount}/${users.length}`);
@@ -392,24 +507,24 @@ async function main() {
     log('info', `月度总用户: ${totalUsers}`);
     log('info', '========================================');
 
-    // 设置输出（GitHub Actions）
+    // GitHub Actions 输出
     if (process.env.GITHUB_OUTPUT) {
         const output = `
 fetch_count=${successCount}
 exceed_count=${exceedCount}
 fail_count=${failCount}
 total_users=${totalUsers}
+discovered_count=${discoveredUsers.length}
         `.trim();
         await fs.writeFile(process.env.GITHUB_OUTPUT, output, { flag: 'a' });
     }
 
-    // 如果有失败，返回非零退出码
+    // 失败率过高
     if (failCount > successCount / 2) {
-        process.exit(2); // 大量失败
+        process.exit(2);
     }
 }
 
-// 运行
 main().catch(error => {
     log('error', `未捕获的错误: ${error.message}`);
     console.error(error);
