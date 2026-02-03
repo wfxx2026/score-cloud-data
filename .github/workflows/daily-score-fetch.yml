@@ -1,16 +1,20 @@
 name: Daily Score Fetch - Hybrid
 
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+  actions: write
+  issues: write
+
 on:
-  # 方案三：外部Cron-Job.org触发
   repository_dispatch:
     types: [daily-fetch, cron-fetch, manual-fetch, pages-rebuild]
   
-  # 方案一：GitHub内置定时（备用）
   schedule:
-    - cron: '0 16 * * *'  # UTC 16:00 = 北京时间 00:00（备用）
-    - cron: '30 15 * * *'  # UTC 15:30 = 北京时间 23:30（预检）
+    - cron: '0 16 * * *'
+    - cron: '30 15 * * *'
   
-  # 手动触发
   workflow_dispatch:
     inputs:
       target_date:
@@ -32,12 +36,8 @@ on:
 
 env:
   NODE_VERSION: '20'
-  DATA_DIR: 'data'
-  SUMMARY_DIR: 'daily-summary'
-  REPORT_DIR: 'reports'
 
 jobs:
-  # 预检任务（只在schedule触发时运行）
   precheck:
     runs-on: ubuntu-latest
     if: github.event_name == 'schedule'
@@ -47,15 +47,16 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
       
       - name: Check if external cron already ran
         id: check
         run: |
           TODAY=$(date +%Y-%m-%d)
-          SUMMARY_FILE="${{ env.SUMMARY_DIR }}/${TODAY}.json"
+          SUMMARY_FILE="daily-summary/${TODAY}.json"
           
           if [ -f "$SUMMARY_FILE" ]; then
-            # 检查文件修改时间是否在1小时内
             FILE_TIME=$(stat -c %Y "$SUMMARY_FILE")
             NOW=$(date +%s)
             DIFF=$((NOW - FILE_TIME))
@@ -72,11 +73,9 @@ jobs:
           echo "reason=No recent data found" >> $GITHUB_OUTPUT
           echo "✅ 需要执行数据抓取"
 
-  # 主抓取任务
   fetch:
     runs-on: ubuntu-latest
     needs: precheck
-    # 如果不是schedule触发，或者预检通过，则执行
     if: |
       always() && 
       (github.event_name != 'schedule' || needs.precheck.outputs.should_run == 'true')
@@ -91,6 +90,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
       
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -108,7 +108,6 @@ jobs:
       - name: Install dependencies
         run: |
           npm ci 2>/dev/null || npm install
-        working-directory: ${{ github.workspace }}
       
       - name: Get trigger info
         id: info
@@ -118,10 +117,8 @@ jobs:
           
           if [ "${{ github.event_name }}" == "repository_dispatch" ]; then
             echo "trigger_source=external-cron" >> $GITHUB_OUTPUT
-            echo "client_payload=${{ toJson(github.event.client_payload) }}" >> $GITHUB_OUTPUT
           fi
           
-          # 确定目标日期
           if [ -n "${{ github.event.inputs.target_date }}" ]; then
             echo "target_date=${{ github.event.inputs.target_date }}" >> $GITHUB_OUTPUT
           else
@@ -140,7 +137,6 @@ jobs:
         run: |
           node scripts/fetch-all.js 2>&1 | tee fetch.log
           
-          # 解析结果
           FETCH_COUNT=$(grep -oP '成功抓取: \K\d+' fetch.log || echo "0")
           EXCEED_COUNT=$(grep -oP '超额人数: \K\d+' fetch.log || echo "0")
           
@@ -158,45 +154,44 @@ jobs:
         run: |
           node scripts/generate-report.js \
             --date ${{ steps.info.outputs.target_date }} \
-            --output ${{ env.REPORT_DIR }}
+            --output reports
       
-      - name: Commit and push changes
-        id: commit
+      - name: Setup Git
         run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+      
+      - name: Check for changes
+        id: verify-changed-files
+        run: |
           git add -A
-          
-          # 检查是否有变更
           if git diff --staged --quiet; then
             echo "changed=false" >> $GITHUB_OUTPUT
             echo "⏭️ 无数据变更"
           else
-            TIMESTAMP=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
-            git commit -m "📊 Daily update: ${{ steps.info.outputs.target_date }} [${{ steps.info.outputs.trigger_source }}]
-            
-            - 抓取人数: ${{ steps.execute.outputs.fetch_count }}
-            - 超额人数: ${{ steps.execute.outputs.exceed_count }}
-            - 执行时间: $TIMESTAMP"
-            
-            git push
             echo "changed=true" >> $GITHUB_OUTPUT
-            echo "✅ 数据已提交"
+            echo "✅ 检测到变更"
           fi
       
-      - name: Upload artifacts
-        if: steps.commit.outputs.changed == 'true'
-        uses: actions/upload-artifact@v4
+      - name: Commit changes
+        if: steps.verify-changed-files.outputs.changed == 'true'
+        run: |
+          TIMESTAMP=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
+          git commit -m "📊 Daily update: ${{ steps.info.outputs.target_date }} [${{ steps.info.outputs.trigger_source }}]
+          
+          - 抓取人数: ${{ steps.execute.outputs.fetch_count }}
+          - 超额人数: ${{ steps.execute.outputs.exceed_count }}
+          - 执行时间: $TIMESTAMP"
+      
+      - name: Push changes
+        if: steps.verify-changed-files.outputs.changed == 'true'
+        uses: ad-m/github-push-action@master
         with:
-          name: daily-data-${{ steps.info.outputs.target_date }}
-          path: |
-            ${{ env.SUMMARY_DIR }}/
-            ${{ env.REPORT_DIR }}/
-          retention-days: 30
-
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ github.ref }}
+      
       - name: Trigger Pages redeploy
-        if: steps.commit.outputs.changed == 'true'
+        if: steps.verify-changed-files.outputs.changed == 'true'
         uses: actions/github-script@v7
         with:
           script: |
@@ -207,7 +202,6 @@ jobs:
             });
         continue-on-error: true
 
-  # 通知任务
   notify:
     runs-on: ubuntu-latest
     needs: [fetch]
@@ -217,7 +211,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       
-      # 失败时创建Issue
       - name: Create issue on failure
         if: needs.fetch.result == 'failure'
         uses: actions/github-script@v7
@@ -248,7 +241,6 @@ jobs:
               labels: ['bug', 'automated']
             });
       
-      # 成功且有超额时创建提醒
       - name: Create exceed alert
         if: |
           needs.fetch.result == 'success' && 
@@ -259,7 +251,6 @@ jobs:
             const exceedCount = parseInt('${{ needs.fetch.outputs.exceed_count }}');
             const title = `⚠️ 今日发现 ${exceedCount} 人分数超额`;
             
-            // 读取超额详情
             const fs = require('fs');
             const today = new Date().toISOString().split('T')[0];
             const summaryPath = `daily-summary/${today}.json`;
@@ -277,7 +268,6 @@ jobs:
               body += '详情查看: ' + summaryPath;
             }
             
-            // 检查是否已存在今日提醒
             const issues = await github.rest.issues.listForRepo({
               owner: context.repo.owner,
               repo: context.repo.repo,
