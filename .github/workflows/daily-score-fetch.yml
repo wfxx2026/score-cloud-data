@@ -3,7 +3,7 @@ name: Daily Score Fetch - Hybrid
 on:
   # 方案三：外部Cron-Job.org触发
   repository_dispatch:
-    types: [daily-fetch, cron-fetch, manual-fetch]
+    types: [daily-fetch, cron-fetch, manual-fetch, pages-rebuild]
   
   # 方案一：GitHub内置定时（备用）
   schedule:
@@ -195,6 +195,18 @@ jobs:
             ${{ env.REPORT_DIR }}/
           retention-days: 30
 
+      - name: Trigger Pages redeploy
+        if: steps.commit.outputs.changed == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.repos.createDispatchEvent({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              event_type: 'pages-rebuild'
+            });
+        continue-on-error: true
+
   # 通知任务
   notify:
     runs-on: ubuntu-latest
@@ -255,7 +267,7 @@ jobs:
             let body = `## 超额提醒\n\n今日检测到 **${exceedCount}** 人分数超过45分限制。\n\n`;
             
             try {
-              const data = JSON.parse(fs.readFileSync(summaryPath,, 'utf8'));
+              const data = JSON.parse(fs.readFileSync(summaryPath, 'utf8'));
               const exceeds = Object.entries(data.users)
                 .filter(([_, u]) => u.isExceed)
                 .map(([name, u]) => `- **${name}**: ${u.score}分`);
@@ -284,22 +296,3 @@ jobs:
                 labels: ['exceed-alert', 'automated']
               });
             }
-
-  # 同步到备用存储（可选）
-  backup:
-    runs-on: ubuntu-latest
-    needs: [fetch]
-    if: needs.fetch.result == 'success'
-    
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      
-      - name: Sync to external storage
-        if: secrets.BACKUP_ENDPOINT != ''
-        env:
-          ENDPOINT: ${{ secrets.BACKUP_ENDPOINT }}
-          KEY: ${{ secrets.BACKUP_KEY }}
-        run: |
-          # 这里可以添加同步到其他云存储的逻辑
-          echo "备份到外部存储..."
