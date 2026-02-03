@@ -1,0 +1,11 @@
+{
+  "date": "2026-02-03",
+  "totalUsers": 10,
+  "successCount": 10,
+  "exceedCount": 2,
+  "normalCount": 8,
+  "users": {
+    "张三": { "score": 50, "isExceed": true },
+    "李四": { "score": 40, "isExceed": false }
+  }
+}
