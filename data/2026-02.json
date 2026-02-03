@@ -860,12 +860,13 @@
     "dailyScores": {
       "2026-02-01": 165,
       "2026-02-02": 35,
-      "2026-02-03": 41
+      "2026-02-03": 35,
+      "2026-02-04": 0
     },
-    "monthlyTotal": 241,
+    "monthlyTotal": 235,
     "exceedDays": 1,
-    "lastUpdate": "2026-02-03T10:54:21.730Z",
-    "uploadCount": 5
+    "lastUpdate": "2026-02-03T19:58:01.664Z",
+    "uploadCount": 6
   },
   "device_nmbpgwzop_任泽": {
     "userName": "任泽",
