@@ -4,12 +4,13 @@
     "userIndex": 1,
     "deviceId": "device_nmbpgwzop",
     "dailyScores": {
-      "2026-02-01": 175,
-      "2026-02-02": 0
+      "2026-02-01": 165,
+      "2026-02-02": 35,
+      "2026-02-03": 45
     },
-    "monthlyTotal": 175,
+    "monthlyTotal": 245,
     "exceedDays": 1,
-    "lastUpdate": "2026-02-01T16:25:54.155Z",
-    "uploadCount": 1
+    "lastUpdate": "2026-02-03T03:53:32.071Z",
+    "uploadCount": 2
   }
 }
