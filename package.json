@@ -1,6 +1,6 @@
 {
   "name": "score-cloud-data",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "自动每日分数抓取与云端存储系统",
   "main": "scripts/fetch-all.js",
   "scripts": {
@@ -9,7 +9,11 @@
     "fetch:date": "node scripts/fetch-all.js --date",
     "report": "node scripts/generate-report.js",
     "report:today": "node scripts/generate-report.js --date $(date +%Y-%m-%d)",
+    "monthly": "node scripts/monthly-summary.js",
+    "monthly:current": "TARGET_MONTH=$(date +%Y-%m) node scripts/monthly-summary.js",
+    "monthly:last": "TARGET_MONTH=$(date -d 'last month' +%Y-%m 2>/dev/null || date -v-1m +%Y-%m) node scripts/monthly-summary.js",
     "health-check": "node scripts/health-check.js",
+    "discover": "node scripts/discover-only.js",
     "test": "echo 'Run: npm run fetch' && exit 0"
   },
   "repository": {
@@ -21,7 +25,8 @@
     "automation",
     "github-actions",
     "cron",
-    "data-collection"
+    "data-collection",
+    "monthly-summary"
   ],
   "author": "wfxx2026",
   "license": "MIT",
