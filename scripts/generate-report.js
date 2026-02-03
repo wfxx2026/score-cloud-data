@@ -7,190 +7,137 @@ const fs = require('fs');
 const path = require('path');
 
 function generateHTML(date, data) {
-    const exceeds = Object.entries(data.users)
+    const users = Object.values(data.users || {});
+    const exceeds = Object.entries(data.users || {})
         .filter(([_, u]) => u.isExceed)
         .sort((a, b) => b[1].score - a[1].score);
-
-    const normal = Object.entries(data.users)
+    
+    const normal = Object.entries(data.users || {})
         .filter(([_, u]) => !u.isExceed && !u.error)
         .sort((a, b) => b[1].score - a[1].score);
 
-    const html = `<!DOCTYPE html>
+    const maxScore = Math.max(...users.map(u => u.score || 0), 1);
+
+    return `<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>每日分数报表 - ${date}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
+        .exceed-limit {
+            background: linear-gradient(135deg, #ff4757 0%, #ff6348 100%) !important;
+            color: white !important;
         }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-        }
-        h1 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 10px;
-        }
-        .date {
-            text-align: center;
-            color: #666;
-            margin-bottom: 30px;
-        }
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin-bottom: 30px;
-        }
-        .stat-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 20px;
-            border-radius: 15px;
-            text-align: center;
-        }
-        .stat-value {
-            font-size: 36px;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-        .stat-label {
-            font-size: 14px;
-            opacity: 0.9;
-        }
-        .section {
-            margin-bottom: 30px;
-        }
-        .section-title {
-            font-size: 18px;
-            color: #333;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #f0f0f0;
-        }
-        .user-list {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .user-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px;
-            border-radius: 10px;
-            background: #f8f9fa;
-        }
-        .user-item.exceed {
-            background: linear-gradient(135deg, #ff4757 0%, #ff6348 100%);
-            color: white;
-            animation: pulse 2s infinite;
-        }
-        .user-item.error {
-            background: #ffe0e0;
-            color: #c00;
-        }
-        @keyframes pulse {
+        @keyframes pulse-red {
             0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.02); }
+            50% { transform: scale(1.05); }
         }
-        .user-name {
-            font-weight: 500;
-        }
-        .user-score {
-            font-size: 20px;
-            font-weight: bold;
-        }
-        .badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            margin-left: 10px;
-        }
-        .badge-exceed {
-            background: #ffeb3b;
-            color: #333;
-        }
-        .footer {
-            text-align: center;
-            color: #999;
-            font-size: 12px;
-            margin-top: 30px;
+        .animate-pulse-red {
+            animation: pulse-red 2s infinite;
         }
     </style>
 </head>
-<body>
-    <div class="container">
-        <h1>📊 每日学习分数报表</h1>
-        <div class="date">${date} ${new Date(data.generatedAt).toLocaleTimeString('zh-CN')}</div>
+<body class="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 p-4 md:p-8">
+    <div class="max-w-6xl mx-auto space-y-6">
         
-        <div class="stats">
-            <div class="stat-card">
-                <div class="stat-value">${data.totalUsers}</div>
-                <div class="stat-label">总人数</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value">${data.successCount}</div>
-                <div class="stat-label">成功</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value" style="color: #ffeb3b;">${data.exceedCount}</div>
-                <div class="stat-label">超额</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value">${data.normalCount}</div>
-                <div class="stat-label">正常</div>
+        <!-- 头部 -->
+        <div class="bg-white rounded-2xl shadow-xl p-6">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-800">📊 每日分数报表</h1>
+                    <p class="text-gray-600 mt-2">${date} 数据概览</p>
+                </div>
+                <div class="text-right">
+                    <div class="text-sm text-gray-500">生成时间</div>
+                    <div class="font-mono">${new Date(data.generatedAt).toLocaleString('zh-CN')}</div>
+                </div>
             </div>
         </div>
 
-        ${exceeds.length > 0 ? `
-        <div class="section">
-            <div class="section-title">⚠️ 超额人员 (${exceeds.length})</div>
-            <div class="user-list">
-                ${exceeds.map(([name, u]) => `
-                    <div class="user-item exceed">
-                        <span class="user-name">${name}</span>
-                        <span class="user-score">${u.score}分</span>
-                    </div>
-                `).join('')}
+        <!-- 统计卡片 -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="bg-white rounded-xl p-4 shadow">
+                <div class="text-3xl font-bold text-blue-600">${data.totalUsers || 0}</div>
+                <div class="text-gray-500 text-sm">总人数</div>
             </div>
-        </div>
-        ` : ''}
-
-        <div class="section">
-            <div class="section-title">✅ 正常人员 (${normal.length})</div>
-            <div class="user-list">
-                ${normal.slice(0, 50).map(([name, u]) => `
-                    <div class="user-item">
-                        <span class="user-name">${name}</span>
-                        <span class="user-score">${u.score}分</span>
-                    </div>
-                `).join('')}
-                ${normal.length > 50 ? `<div style="text-align:center;color:#999;padding:10px;">...还有 ${normal.length - 50} 人</div>` : ''}
+            <div class="bg-white rounded-xl p-4 shadow">
+                <div class="text-3xl font-bold text-green-600">${data.successCount || 0}</div>
+                <div class="text-gray-500 text-sm">成功</div>
+            </div>
+            <div class="bg-white rounded-xl p-4 shadow">
+                <div class="text-3xl font-bold text-red-500">${data.exceedCount || 0}</div>
+                <div class="text-gray-500 text-sm">超额</div>
+            </div>
+            <div class="bg-white rounded-xl p-4 shadow">
+                <div class="text-3xl font-bold text-purple-600">${data.normalCount || 0}</div>
+                <div class="text-gray-500 text-sm">正常</div>
             </div>
         </div>
 
-        <div class="footer">
-            自动生成于 ${new Date(data.generatedAt).toLocaleString('zh-CN')} | 
-            来源: ${data.meta?.source || 'unknown'}
+        <!-- 图表 -->
+        <div class="bg-white rounded-2xl shadow-xl p-6">
+            <h3 class="font-bold text-lg mb-4">📈 分数分布 (前20名)</h3>
+            <div class="h-64 flex items-end justify-around gap-2 overflow-x-auto pb-2">
+                ${users.slice(0, 20).map(u => {
+                    const height = ((u.score || 0) / maxScore * 100);
+                    return `
+                        <div class="flex flex-col items-center gap-1 min-w-[40px]">
+                            <div class="text-xs text-gray-500">${u.score || 0}</div>
+                            <div class="w-8 rounded-t-lg ${u.isExceed ? 'exceed-limit animate-pulse-red' : 'bg-gradient-to-t from-blue-500 to-purple-500'}" 
+                                 style="height: ${Math.max(height, 5)}%"></div>
+                            <div class="text-xs text-gray-600 truncate w-full text-center">${Object.entries(data.users).find(([_, user]) => user === u)?.[0]?.substring(0, 2) || ''}</div>
+                        </div>
+                    `;
+                }).join('')}
+            </div>
+        </div>
+
+        <!-- 详细列表 -->
+        <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+            <div class="p-4 border-b">
+                <h3 class="font-bold text-lg">📋 详细数据</h3>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead class="bg-gray-100">
+                        <tr>
+                            <th class="px-4 py-3 text-left">排名</th>
+                            <th class="px-4 py-3 text-left">姓名</th>
+                            <th class="px-4 py-3 text-center">分数</th>
+                            <th class="px-4 py-3 text-center">状态</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${exceeds.map(([name, u], idx) => `
+                            <tr class="bg-red-50">
+                                <td class="px-4 py-3">${idx + 1}</td>
+                                <td class="px-4 py-3 font-semibold">${name}</td>
+                                <td class="px-4 py-3 text-center font-bold text-red-600">${u.score}</td>
+                                <td class="px-4 py-3 text-center"><span class="px-2 py-1 bg-red-500 text-white rounded text-xs">超额</span></td>
+                            </tr>
+                        `).join('')}
+                        ${normal.map(([name, u], idx) => `
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-4 py-3">${exceeds.length + idx + 1}</td>
+                                <td class="px-4 py-3">${name}</td>
+                                <td class="px-4 py-3 text-center">${u.score}</td>
+                                <td class="px-4 py-3 text-center"><span class="px-2 py-1 bg-green-500 text-white rounded text-xs">正常</span></td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 页脚 -->
+        <div class="text-center text-gray-500 text-sm py-4">
+            <p>由 GitHub Actions 自动生成</p>
         </div>
     </div>
 </body>
 </html>`;
-
-    return html;
 }
 
 // 主函数
@@ -211,24 +158,24 @@ async function main() {
 
     // 读取数据
     const summaryPath = path.join('daily-summary', `${date}.json`);
-    if (!require('fs').existsSync(summaryPath)) {
+    if (!fs.existsSync(summaryPath)) {
         console.error(`数据文件不存在: ${summaryPath}`);
         process.exit(1);
     }
 
-    const data = JSON.parse(require('fs').readFileSync(summaryPath, 'utf8'));
+    const data = JSON.parse(fs.readFileSync(summaryPath, 'utf8'));
 
     // 生成HTML
     const html = generateHTML(date, data);
     
     // 确保目录存在
-    if (!require('fs').existsSync(outputDir)) {
-        require('fs').mkdirSync(outputDir, { recursive: true });
+    if (!fs.existsSync(outputDir)) {
+        fs.mkdirSync(outputDir, { recursive: true });
     }
 
     // 保存
     const outputPath = path.join(outputDir, `${date}.html`);
-    require('fs').writeFileSync(outputPath, html);
+    fs.writeFileSync(outputPath, html);
     
     console.log(`报表已生成: ${outputPath}`);
 }
