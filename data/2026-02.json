@@ -23,12 +23,13 @@
       "2026-02-01": 164,
       "2026-02-02": 33,
       "2026-02-03": 35,
-      "2026-02-04": 16
+      "2026-02-04": 45,
+      "2026-02-05": 0
     },
-    "monthlyTotal": 248,
+    "monthlyTotal": 277,
     "exceedDays": 1,
-    "lastUpdate": "2026-02-04T01:14:03.877Z",
-    "uploadCount": 1
+    "lastUpdate": "2026-02-04T16:38:25.335Z",
+    "uploadCount": 2
   },
   "device_nmbpgwzop_刘泽泽": {
     "userName": "刘泽泽",
