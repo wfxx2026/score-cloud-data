@@ -92,5 +92,21 @@
     "exceedDays": 1,
     "lastUpdate": "2026-02-04T16:38:48.479Z",
     "uploadCount": 3
+  },
+  "device_nmbpgwzop_郭佳兴": {
+    "userName": "郭佳兴",
+    "userIndex": 7,
+    "deviceId": "device_nmbpgwzop",
+    "dailyScores": {
+      "2026-02-01": 165,
+      "2026-02-02": 35,
+      "2026-02-03": 35,
+      "2026-02-04": 45,
+      "2026-02-05": 0
+    },
+    "monthlyTotal": 280,
+    "exceedDays": 1,
+    "lastUpdate": "2026-02-04T16:41:04.498Z",
+    "uploadCount": 1
   }
 }
