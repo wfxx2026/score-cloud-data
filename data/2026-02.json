@@ -73,5 +73,20 @@
     "exceedDays": 1,
     "lastUpdate": "2026-02-04T14:49:21.866Z",
     "uploadCount": 1
+  },
+  "device_nmbpgwzop_任泽": {
+    "userName": "任泽",
+    "userIndex": 6,
+    "deviceId": "device_nmbpgwzop",
+    "dailyScores": {
+      "2026-02-01": 165,
+      "2026-02-02": 35,
+      "2026-02-03": 35,
+      "2026-02-04": 16
+    },
+    "monthlyTotal": 251,
+    "exceedDays": 1,
+    "lastUpdate": "2026-02-04T14:50:20.745Z",
+    "uploadCount": 1
   }
 }
