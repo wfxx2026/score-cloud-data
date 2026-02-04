@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>全员答题分数云端管理</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 SheetJS 库用于导出 Excel -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
@@ -157,9 +159,9 @@
             <div class="p-4 border-b border-gray-200 flex justify-between items-center bg-white/50">
                 <h3 class="font-bold text-lg text-gray-800">📋 详细数据</h3>
                 <div class="flex gap-2">
-                    <button onclick="exportCSV()" class="px-4 py-2 text-sm bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition flex items-center gap-1">
+                    <button onclick="exportExcel()" class="px-4 py-2 text-sm bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition flex items-center gap-1">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                        导出CSV
+                        导出Excel
                     </button>
                 </div>
             </div>
@@ -397,20 +399,32 @@
             }).join('');
         }
 
-        function exportCSV() {
+        /**
+         * 导出Excel功能（使用SheetJS库）
+         * 支持样式设置、自动列宽、超额分数标红
+         */
+        function exportExcel() {
             if (!currentData) {
                 alert('暂无数据可导出');
                 return;
             }
 
-            const users = Object.values(currentData);
+            const users = Object.values(currentData).filter(u => u.userName);
+            if (users.length === 0) {
+                alert('暂无数据可导出');
+                return;
+            }
+
+            // 收集所有日期
             const dateSet = new Set();
             users.forEach(u => Object.keys(u.dailyScores || {}).forEach(d => dateSet.add(d)));
             const dates = Array.from(dateSet).sort();
 
-            let csv = '序号,用户名,当月总分,超额天数,' + dates.join(',') + '\n';
+            // 准备表头
+            const headers = ['序号', '用户名', '当月总分', '超额天数', ...dates];
             
-            users.forEach((user, idx) => {
+            // 准备数据行
+            const dataRows = users.map((user, idx) => {
                 const exceedDays = Object.values(user.dailyScores || {}).filter(s => s > DAILY_LIMIT).length;
                 const row = [
                     user.userIndex || idx + 1,
@@ -419,14 +433,104 @@
                     exceedDays,
                     ...dates.map(d => (user.dailyScores || {})[d] || 0)
                 ];
-                csv += row.join(',') + '\n';
+                return row;
             });
 
-            const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = `分数数据_${currentMonth}.csv`;
-            link.click();
+            // 创建工作簿
+            const wb = XLSX.utils.book_new();
+            
+            // 创建工作表数据（包含表头）
+            const wsData = [headers, ...dataRows];
+            const ws = XLSX.utils.aoa_to_sheet(wsData);
+
+            // 设置列宽（自动适应）
+            const colWidths = headers.map((header, idx) => {
+                // 计算该列的最大长度
+                let maxLen = String(header).length;
+                dataRows.forEach(row => {
+                    const cellVal = String(row[idx] || '');
+                    if (cellVal.length > maxLen) maxLen = cellVal.length;
+                });
+                // 设置宽度（中文字符占2个宽度单位，最小宽度10）
+                return { wch: Math.max(maxLen * 1.5 + 2, 10) };
+            });
+            ws['!cols'] = colWidths;
+
+            // 设置行高
+            ws['!rows'] = [{ hpx: 25 }, ...dataRows.map(() => ({ hpx: 20 }))];
+
+            // 添加样式（超额分数标红）
+            const range = XLSX.utils.decode_range(ws['!ref']);
+            for (let R = 1; R <= range.e.r; ++R) { // 从第2行开始（跳过表头）
+                for (let C = 4; C <= range.e.c; ++C) { // 从第5列开始（日期列）
+                    const cellRef = XLSX.utils.encode_cell({ r: R, c: C });
+                    const cell = ws[cellRef];
+                    if (cell && typeof cell.v === 'number' && cell.v > DAILY_LIMIT) {
+                        // 设置字体颜色为红色
+                        cell.s = {
+                            font: { color: { rgb: "FF0000" }, bold: true },
+                            fill: { fgColor: { rgb: "FFEEEE" } }
+                        };
+                    }
+                }
+            }
+
+            // 设置表头样式
+            for (let C = 0; C <= range.e.c; ++C) {
+                const cellRef = XLSX.utils.encode_cell({ r: 0, c: C });
+                if (ws[cellRef]) {
+                    ws[cellRef].s = {
+                        font: { bold: true, color: { rgb: "FFFFFF" } },
+                        fill: { fgColor: { rgb: "4472C4" } },
+                        alignment: { horizontal: "center", vertical: "center" }
+                    };
+                }
+            }
+
+            // 将工作表添加到工作簿
+            XLSX.utils.book_append_sheet(wb, ws, "分数数据");
+
+            // 生成文件名
+            const fileName = `分数数据_${currentMonth}.xlsx`;
+
+            // 使用 writeFile 方法直接下载（兼容性最好）
+            try {
+                XLSX.writeFile(wb, fileName);
+            } catch (e) {
+                // 如果 writeFile 失败（旧版浏览器），使用备用方案
+                console.warn('writeFile 失败，使用备用下载方案:', e);
+                
+                const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+                const blob = new Blob([wbout], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+                
+                // 兼容性下载方案
+                if (window.navigator && window.navigator.msSaveOrOpenBlob) {
+                    // IE 浏览器
+                    window.navigator.msSaveOrOpenBlob(blob, fileName);
+                } else {
+                    // 现代浏览器
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = fileName;
+                    
+                    // 针对 Safari 的特殊处理
+                    if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+                        const reader = new FileReader();
+                        reader.onloadend = function() {
+                            const url = reader.result;
+                            window.open(url, '_blank');
+                        };
+                        reader.readAsDataURL(blob);
+                    } else {
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                    }
+                    
+                    setTimeout(() => URL.revokeObjectURL(url), 1000);
+                }
+            }
         }
 
         function updateLastUpdate() {
