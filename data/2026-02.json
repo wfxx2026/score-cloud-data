@@ -1,0 +1,17 @@
+{
+  "device_nmbpgwzop_权伟": {
+    "userName": "权伟",
+    "userIndex": 1,
+    "deviceId": "device_nmbpgwzop",
+    "dailyScores": {
+      "2026-02-01": 165,
+      "2026-02-02": 35,
+      "2026-02-03": 35,
+      "2026-02-04": 0
+    },
+    "monthlyTotal": 235,
+    "exceedDays": 1,
+    "lastUpdate": "2026-02-04T01:13:06.423Z",
+    "uploadCount": 1
+  }
+}
