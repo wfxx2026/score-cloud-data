@@ -133,7 +133,7 @@
             </div>
             <div class="glass-effect rounded-xl p-4 shadow hover:shadow-lg transition">
                 <div class="text-3xl font-bold text-red-500" id="stat-exceed">-</div>
-                <div class="text-gray-500 text-sm mt-1">超额人数</div>
+                <div class="text-gray-500 text-sm mt-1">异常人数</div>
             </div>
             <div class="glass-effect rounded-xl p-4 shadow hover:shadow-lg transition">
                 <div class="text-3xl font-bold text-green-600" id="stat-max">-</div>
@@ -146,7 +146,7 @@
             <div class="flex justify-between items-center mb-4">
                 <h3 class="font-bold text-lg text-gray-800">📈 分数分布</h3>
                 <div class="flex gap-2 text-sm">
-                    <span class="flex items-center gap-1"><span class="w-3 h-3 bg-red-500 rounded-full"></span>超额(>45)</span>
+                    <span class="flex items-center gap-1"><span class="w-3 h-3 bg-red-500 rounded-full"></span>异常(非45/35/165/175)</span>
                     <span class="flex items-center gap-1"><span class="w-3 h-3 bg-green-500 rounded-full"></span>正常</span>
                 </div>
             </div>
@@ -202,7 +202,7 @@
                 <p><span class="font-medium text-blue-600">7.</span> 手机练习规则：每日每练习50题加1分，上限：每日最多6分</p>
             </div>
             <div class="mt-4 p-3 bg-yellow-100 rounded-lg text-center font-medium">
-                每日最高积分计算：3 + 1 + 8 + 16 + 1 + 10 + 6 = 45 分 ✅
+                正常分数：45分、35分、165分、175分 ✅ | 其余分数均为异常 ⚠️
             </div>
         </div>
 
@@ -214,7 +214,8 @@
     </div>
 
     <script>
-        const DAILY_LIMIT = 45;
+        // 正常分数白名单，不在此列表中的都是异常分数
+        const NORMAL_SCORES = [45, 35, 165, 175];
         let currentData = null;
         let currentMonth = '';
 
@@ -285,7 +286,8 @@
         function updateStats(users) {
             const total = users.length;
             const avg = total > 0 ? Math.round(users.reduce((sum, u) => sum + (u.monthlyTotal || 0), 0) / total) : 0;
-            const exceed = users.filter(u => Object.values(u.dailyScores || {}).some(s => s > DAILY_LIMIT)).length;
+            // 异常人数：有任意一天分数不在白名单中
+            const exceed = users.filter(u => Object.values(u.dailyScores || {}).some(s => !NORMAL_SCORES.includes(s))).length;
             const max = total > 0 ? Math.max(...users.map(u => u.monthlyTotal || 0)) : 0;
 
             animateNumber('stat-total', total);
@@ -328,7 +330,8 @@
 
             container.innerHTML = sorted.map(user => {
                 const score = user.monthlyTotal || 0;
-                const hasExceed = Object.values(user.dailyScores || {}).some(s => s > DAILY_LIMIT);
+                // 检查是否有异常分数（不在白名单中）
+                const hasExceed = Object.values(user.dailyScores || {}).some(s => !NORMAL_SCORES.includes(s));
                 const height = maxScore > 0 ? (score / maxScore * 100) : 0;
                 
                 return `
@@ -370,8 +373,13 @@
 
             const tbody = document.getElementById('tableBody');
             tbody.innerHTML = users.map((user, idx) => {
-                const hasExceed = Object.values(user.dailyScores || {}).some(s => s > DAILY_LIMIT);
-                const exceedDays = Object.entries(user.dailyScores || {}).filter(([_, s]) => s > DAILY_LIMIT).map(([d, s]) => `${d.slice(5)}(${s}分)`).join('、');
+                // 检查是否有异常分数
+                const hasExceed = Object.values(user.dailyScores || {}).some(s => !NORMAL_SCORES.includes(s));
+                // 获取异常日期详情
+                const exceedDays = Object.entries(user.dailyScores || {})
+                    .filter(([_, s]) => !NORMAL_SCORES.includes(s))
+                    .map(([d, s]) => `${d.slice(5)}(${s}分)`)
+                    .join('、');
                 
                 return `
                     <tr class="hover:bg-blue-50 transition ${hasExceed ? 'bg-red-50' : ''}">
@@ -379,13 +387,14 @@
                         <td class="sticky-col px-4 py-3 font-semibold text-gray-800 bg-white" style="left: 80px;">
                             <div class="flex items-center gap-2">
                                 ${user.userName}
-                                ${hasExceed ? `<span class="text-red-500 text-xs" title="超额日期：${exceedDays}">⚠️</span>` : ''}
+                                ${hasExceed ? `<span class="text-red-500 text-xs" title="异常日期：${exceedDays}">⚠️</span>` : ''}
                             </div>
                         </td>
                         <td class="px-4 py-3 text-center font-bold text-blue-600 bg-blue-50/50">${user.monthlyTotal || 0}</td>
                         ${dates.map(date => {
                             const score = (user.dailyScores || {})[date] || 0;
-                            const isExceed = score > DAILY_LIMIT;
+                            // 检查是否为异常分数
+                            const isExceed = !NORMAL_SCORES.includes(score);
                             return `
                                 <td class="px-1 py-2">
                                     <div class="text-center py-1.5 rounded text-sm font-medium transition ${isExceed ? 'exceed-limit' : (score > 0 ? 'bg-gray-100 text-gray-700' : 'text-gray-300')}">
@@ -401,7 +410,7 @@
 
         /**
          * 导出Excel功能（使用SheetJS库）
-         * 支持样式设置、自动列宽、超额分数标红
+         * 支持样式设置、自动列宽、异常分数标红
          */
         function exportExcel() {
             if (!currentData) {
@@ -421,11 +430,12 @@
             const dates = Array.from(dateSet).sort();
 
             // 准备表头
-            const headers = ['序号', '用户名', '当月总分', '超额天数', ...dates];
+            const headers = ['序号', '用户名', '当月总分', '异常天数', ...dates];
             
             // 准备数据行
             const dataRows = users.map((user, idx) => {
-                const exceedDays = Object.values(user.dailyScores || {}).filter(s => s > DAILY_LIMIT).length;
+                // 统计异常天数（分数不在白名单中）
+                const exceedDays = Object.values(user.dailyScores || {}).filter(s => !NORMAL_SCORES.includes(s)).length;
                 const row = [
                     user.userIndex || idx + 1,
                     user.userName,
@@ -459,13 +469,14 @@
             // 设置行高
             ws['!rows'] = [{ hpx: 25 }, ...dataRows.map(() => ({ hpx: 20 }))];
 
-            // 添加样式（超额分数标红）
+            // 添加样式（异常分数标红）
             const range = XLSX.utils.decode_range(ws['!ref']);
             for (let R = 1; R <= range.e.r; ++R) { // 从第2行开始（跳过表头）
                 for (let C = 4; C <= range.e.c; ++C) { // 从第5列开始（日期列）
                     const cellRef = XLSX.utils.encode_cell({ r: R, c: C });
                     const cell = ws[cellRef];
-                    if (cell && typeof cell.v === 'number' && cell.v > DAILY_LIMIT) {
+                    // 检查是否为异常分数（不在白名单中且大于0）
+                    if (cell && typeof cell.v === 'number' && cell.v > 0 && !NORMAL_SCORES.includes(cell.v)) {
                         // 设置字体颜色为红色
                         cell.s = {
                             font: { color: { rgb: "FF0000" }, bold: true },
