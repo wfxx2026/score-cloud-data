@@ -104,11 +104,11 @@
       "2026-02-02": 35,
       "2026-02-03": 35,
       "2026-02-04": 35,
-      "2026-02-05": 16
+      "2026-02-05": 45
     },
-    "monthlyTotal": 286,
-    "exceedDays": 1,
-    "lastUpdate": "2026-02-04T23:31:06.135Z",
-    "uploadCount": 4
+    "monthlyTotal": 315,
+    "exceedDays": 0,
+    "lastUpdate": "2026-02-05T14:54:53.020Z",
+    "uploadCount": 5
   }
 }
