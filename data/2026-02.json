@@ -24,12 +24,12 @@
       "2026-02-02": 33,
       "2026-02-03": 35,
       "2026-02-04": 35,
-      "2026-02-05": 0
+      "2026-02-05": 48
     },
-    "monthlyTotal": 267,
+    "monthlyTotal": 315,
     "exceedDays": 3,
-    "lastUpdate": "2026-02-04T23:31:17.083Z",
-    "uploadCount": 4
+    "lastUpdate": "2026-02-05T14:58:44.554Z",
+    "uploadCount": 5
   },
   "device_nmbpgwzop_刘泽泽": {
     "userName": "刘泽泽",
