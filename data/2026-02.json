@@ -336,5 +336,22 @@
     "exceedDays": 6,
     "lastUpdate": "2026-02-06T12:02:28.793Z",
     "uploadCount": 2
+  },
+  "device_nmbpgwzop_白鹏刚": {
+    "userName": "白鹏刚",
+    "userIndex": 21,
+    "deviceId": "device_nmbpgwzop",
+    "dailyScores": {
+      "2026-02-01": 153,
+      "2026-02-02": 35,
+      "2026-02-03": 35,
+      "2026-02-04": 35,
+      "2026-02-05": 45,
+      "2026-02-06": 45
+    },
+    "monthlyTotal": 348,
+    "exceedDays": 1,
+    "lastUpdate": "2026-02-06T12:02:30.669Z",
+    "uploadCount": 1
   }
 }
