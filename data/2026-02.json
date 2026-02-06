@@ -160,5 +160,23 @@
     "exceedDays": 1,
     "lastUpdate": "2026-02-06T16:21:28.496Z",
     "uploadCount": 1
+  },
+  "device_nmbpgwzop_赵鹏飞": {
+    "userName": "赵鹏飞",
+    "userIndex": 10,
+    "deviceId": "device_nmbpgwzop",
+    "dailyScores": {
+      "2026-02-01": 165,
+      "2026-02-02": 35,
+      "2026-02-03": 35,
+      "2026-02-04": 35,
+      "2026-02-05": 45,
+      "2026-02-06": 45,
+      "2026-02-07": 0
+    },
+    "monthlyTotal": 360,
+    "exceedDays": 1,
+    "lastUpdate": "2026-02-06T16:21:30.047Z",
+    "uploadCount": 1
   }
 }
