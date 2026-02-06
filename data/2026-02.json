@@ -106,12 +106,13 @@
       "2026-02-02": 35,
       "2026-02-03": 35,
       "2026-02-04": 35,
-      "2026-02-05": 45
+      "2026-02-05": 45,
+      "2026-02-06": 17
     },
-    "monthlyTotal": 315,
-    "exceedDays": 0,
-    "lastUpdate": "2026-02-05T14:57:26.803Z",
-    "uploadCount": 1
+    "monthlyTotal": 332,
+    "exceedDays": 1,
+    "lastUpdate": "2026-02-06T12:00:11.391Z",
+    "uploadCount": 2
   },
   "device_nmbpgwzop_张 聪": {
     "userName": "张 聪",
