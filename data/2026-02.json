@@ -185,5 +185,22 @@
     "exceedDays": 0,
     "lastUpdate": "2026-02-06T12:48:14.358Z",
     "uploadCount": 1
+  },
+  "device_nmbpgwzop_张飞龙": {
+    "userName": "张飞龙",
+    "userIndex": 12,
+    "deviceId": "device_nmbpgwzop",
+    "dailyScores": {
+      "2026-02-01": 32,
+      "2026-02-02": 33,
+      "2026-02-03": 34,
+      "2026-02-04": 34,
+      "2026-02-05": 44,
+      "2026-02-06": 174
+    },
+    "monthlyTotal": 351,
+    "exceedDays": 6,
+    "lastUpdate": "2026-02-06T12:48:17.145Z",
+    "uploadCount": 1
   }
 }
