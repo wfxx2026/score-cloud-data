@@ -41,12 +41,13 @@
       "2026-02-02": 35,
       "2026-02-03": 35,
       "2026-02-04": 35,
-      "2026-02-05": 45
+      "2026-02-05": 45,
+      "2026-02-06": 45
     },
-    "monthlyTotal": 315,
+    "monthlyTotal": 360,
     "exceedDays": 0,
-    "lastUpdate": "2026-02-05T05:06:25.265Z",
-    "uploadCount": 3
+    "lastUpdate": "2026-02-06T04:53:07.918Z",
+    "uploadCount": 4
   },
   "device_nmbpgwzop_惠智诚": {
     "userName": "惠智诚",
