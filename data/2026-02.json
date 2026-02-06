@@ -25,12 +25,13 @@
       "2026-02-02": 35,
       "2026-02-03": 35,
       "2026-02-04": 35,
-      "2026-02-05": 45
+      "2026-02-05": 45,
+      "2026-02-06": 175
     },
-    "monthlyTotal": 185,
+    "monthlyTotal": 360,
     "exceedDays": 0,
-    "lastUpdate": "2026-02-05T05:06:46.046Z",
-    "uploadCount": 3
+    "lastUpdate": "2026-02-06T12:02:10.907Z",
+    "uploadCount": 4
   },
   "device_nmbpgwzop_赵鹏飞": {
     "userName": "赵鹏飞",
