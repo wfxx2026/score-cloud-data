@@ -286,5 +286,23 @@
     "exceedDays": 1,
     "lastUpdate": "2026-02-06T16:22:00.519Z",
     "uploadCount": 2
+  },
+  "device_nmbpgwzop_马 英": {
+    "userName": "马 英",
+    "userIndex": 17,
+    "deviceId": "device_nmbpgwzop",
+    "dailyScores": {
+      "2026-02-01": 165,
+      "2026-02-02": 35,
+      "2026-02-03": 35,
+      "2026-02-04": 35,
+      "2026-02-05": 45,
+      "2026-02-06": 45,
+      "2026-02-07": 0
+    },
+    "monthlyTotal": 360,
+    "exceedDays": 1,
+    "lastUpdate": "2026-02-06T16:22:04.000Z",
+    "uploadCount": 1
   }
 }
