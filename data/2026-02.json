@@ -1,0 +1,20 @@
+{
+  "device_nmbpgwzop_刘勇杰": {
+    "userName": "刘勇杰",
+    "userIndex": 1,
+    "deviceId": "device_nmbpgwzop",
+    "dailyScores": {
+      "2026-02-01": 164,
+      "2026-02-02": 33,
+      "2026-02-03": 35,
+      "2026-02-04": 35,
+      "2026-02-05": 48,
+      "2026-02-06": 45,
+      "2026-02-07": 1
+    },
+    "monthlyTotal": 361,
+    "exceedDays": 4,
+    "lastUpdate": "2026-02-06T16:21:14.372Z",
+    "uploadCount": 1
+  }
+}
