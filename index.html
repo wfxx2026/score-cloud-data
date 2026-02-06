@@ -171,7 +171,7 @@
                 <table class="w-full text-sm" id="dataTable">
                     <thead class="bg-gray-100 sticky top-0 z-30">
                         <tr id="tableHeader">
-                            <th class="sticky-col px-3 py-2 text-left font-semibold text-gray-700 text-xs">序号</th>
+                            <th class="sticky-col px-3 py-2 text-left font-semibold text-gray-700 text-xs">排名</th>
                             <th class="sticky-col px-3 py-2 text-left font-semibold text-gray-700 text-xs" style="left: 60px;">用户名</th>
                             <th class="px-3 py-2 text-center font-semibold text-blue-600 bg-blue-50 text-xs">当月总分</th>
                         </tr>
@@ -279,7 +279,17 @@
         }
 
         function renderData(data) {
-            const users = Object.values(data).filter(u => u.userName);
+            // 获取用户数组并按当月总分降序排序
+            let users = Object.values(data).filter(u => u.userName);
+            
+            // 🔥 关键修改：按当月总分降序排序
+            users.sort((a, b) => (b.monthlyTotal || 0) - (a.monthlyTotal || 0));
+            
+            // 重新分配排名序号（基于分数排序后的顺序）
+            users.forEach((user, index) => {
+                user.rank = index + 1;  // 添加排名字段
+            });
+            
             updateStats(users);
             renderChart(users);
             renderTable(users);
@@ -327,10 +337,11 @@
                 return;
             }
 
-            const sorted = [...users].sort((a, b) => (b.monthlyTotal || 0) - (a.monthlyTotal || 0)).slice(0, 15);
-            const maxScore = Math.max(...sorted.map(u => u.monthlyTotal || 0), 1);
+            // 取前15名（已经按分数排序）
+            const topUsers = users.slice(0, 15);
+            const maxScore = Math.max(...topUsers.map(u => u.monthlyTotal || 0), 1);
 
-            container.innerHTML = sorted.map(user => {
+            container.innerHTML = topUsers.map(user => {
                 const score = user.monthlyTotal || 0;
                 // 检查是否有异常分数（不在白名单中）
                 const hasExceed = Object.values(user.dailyScores || {}).some(s => !NORMAL_SCORES.includes(s));
@@ -360,7 +371,7 @@
 
             const header = document.getElementById('tableHeader');
             header.innerHTML = `
-                <th class="sticky-col px-3 py-2 text-left font-semibold text-gray-700 bg-gray-100 text-xs">序号</th>
+                <th class="sticky-col px-3 py-2 text-left font-semibold text-gray-700 bg-gray-100 text-xs">排名</th>
                 <th class="sticky-col px-3 py-2 text-left font-semibold text-gray-700 bg-gray-100 text-xs" style="left: 60px;">用户名</th>
                 <th class="px-3 py-2 text-center font-semibold text-blue-600 bg-blue-50 text-xs">当月总分</th>
                 ${dates.map(d => {
@@ -383,9 +394,14 @@
                     .map(([d, s]) => `${d.slice(5)}(${s}分)`)
                     .join('、');
                 
+                // 🔥 使用排序后的排名（rank），而不是原始的 userIndex
+                const rank = user.rank || idx + 1;
+                
                 return `
                     <tr class="hover:bg-blue-50 transition ${hasExceed ? 'bg-red-50' : ''}">
-                        <td class="sticky-col px-3 py-2 font-medium text-gray-600 bg-white text-xs">${user.userIndex || idx + 1}</td>
+                        <td class="sticky-col px-3 py-2 font-medium ${rank <= 3 ? 'text-yellow-600' : 'text-gray-600'} bg-white text-xs">
+                            ${rank <= 3 ? '🏆 ' : ''}${rank}
+                        </td>
                         <td class="sticky-col px-3 py-2 font-semibold text-gray-800 bg-white text-xs" style="left: 60px;">
                             <div class="flex items-center gap-1">
                                 ${user.userName}
@@ -420,7 +436,10 @@
                 return;
             }
 
-            const users = Object.values(currentData).filter(u => u.userName);
+            // 获取用户数组并按分数排序（与显示一致）
+            let users = Object.values(currentData).filter(u => u.userName);
+            users.sort((a, b) => (b.monthlyTotal || 0) - (a.monthlyTotal || 0));
+            
             if (users.length === 0) {
                 alert('暂无数据可导出');
                 return;
@@ -432,14 +451,14 @@
             const dates = Array.from(dateSet).sort();
 
             // 准备表头
-            const headers = ['序号', '用户名', '当月总分', '异常天数', ...dates];
+            const headers = ['排名', '用户名', '当月总分', '异常天数', ...dates];
             
             // 准备数据行
             const dataRows = users.map((user, idx) => {
                 // 统计异常天数（分数不在白名单中）
                 const exceedDays = Object.values(user.dailyScores || {}).filter(s => !NORMAL_SCORES.includes(s)).length;
                 const row = [
-                    user.userIndex || idx + 1,
+                    idx + 1,  // 使用分数排名
                     user.userName,
                     user.monthlyTotal || 0,
                     exceedDays,
