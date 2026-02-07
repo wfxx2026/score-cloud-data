@@ -33,5 +33,23 @@
     "exceedDays": 0,
     "lastUpdate": "2026-02-07T01:22:58.761Z",
     "uploadCount": 1
+  },
+  "device_nmbpgwzop_王佳": {
+    "userName": "王佳",
+    "userIndex": 3,
+    "deviceId": "device_nmbpgwzop",
+    "dailyScores": {
+      "2026-02-01": 165,
+      "2026-02-02": 35,
+      "2026-02-03": 35,
+      "2026-02-04": 35,
+      "2026-02-05": 45,
+      "2026-02-06": 35,
+      "2026-02-07": 45
+    },
+    "monthlyTotal": 395,
+    "exceedDays": 0,
+    "lastUpdate": "2026-02-07T01:23:00.808Z",
+    "uploadCount": 1
   }
 }
