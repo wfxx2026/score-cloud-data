@@ -286,5 +286,23 @@
     "exceedDays": 1,
     "lastUpdate": "2026-02-07T01:29:53.181Z",
     "uploadCount": 1
+  },
+  "device_nmbpgwzop_惠智诚": {
+    "userName": "惠智诚",
+    "userIndex": 17,
+    "deviceId": "device_nmbpgwzop",
+    "dailyScores": {
+      "2026-02-01": 153,
+      "2026-02-02": 36,
+      "2026-02-03": 35,
+      "2026-02-04": 41,
+      "2026-02-05": 45,
+      "2026-02-06": 40,
+      "2026-02-07": 17
+    },
+    "monthlyTotal": 367,
+    "exceedDays": 5,
+    "lastUpdate": "2026-02-07T01:29:56.125Z",
+    "uploadCount": 1
   }
 }
