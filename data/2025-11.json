@@ -370,7 +370,7 @@
   },
   "device_mxnrnfgd0_张良收": {
     "userName": "张良收",
-    "userIndex": 10,
+    "userIndex": 11,
     "deviceId": "device_mxnrnfgd0",
     "dailyScores": {
       "2025-11-01": 35,
@@ -406,7 +406,7 @@
     },
     "monthlyTotal": 944,
     "exceedDays": 6,
-    "lastUpdate": "2026-02-07T07:36:14.574Z",
+    "lastUpdate": "2026-02-07T07:38:59.251Z",
     "uploadCount": 1
   }
 }
