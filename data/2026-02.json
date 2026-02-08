@@ -588,5 +588,24 @@
     "exceedDays": 8,
     "lastUpdate": "2026-02-08T03:33:08.835Z",
     "uploadCount": 1
+  },
+  "device_mxnrnfgd0_白鹏刚": {
+    "userName": "白鹏刚",
+    "userIndex": 33,
+    "deviceId": "device_mxnrnfgd0",
+    "dailyScores": {
+      "2026-02-01": 153,
+      "2026-02-02": 35,
+      "2026-02-03": 35,
+      "2026-02-04": 35,
+      "2026-02-05": 45,
+      "2026-02-06": 35,
+      "2026-02-07": 35,
+      "2026-02-08": 45
+    },
+    "monthlyTotal": 418,
+    "exceedDays": 1,
+    "lastUpdate": "2026-02-08T03:33:10.691Z",
+    "uploadCount": 1
   }
 }
