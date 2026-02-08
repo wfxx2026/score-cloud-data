@@ -341,5 +341,24 @@
     "exceedDays": 0,
     "lastUpdate": "2026-02-08T03:32:44.636Z",
     "uploadCount": 1
+  },
+  "device_mxnrnfgd0_张良收": {
+    "userName": "张良收",
+    "userIndex": 20,
+    "deviceId": "device_mxnrnfgd0",
+    "dailyScores": {
+      "2026-02-01": 165,
+      "2026-02-02": 35,
+      "2026-02-03": 35,
+      "2026-02-04": 35,
+      "2026-02-05": 45,
+      "2026-02-06": 35,
+      "2026-02-07": 35,
+      "2026-02-08": 45
+    },
+    "monthlyTotal": 430,
+    "exceedDays": 0,
+    "lastUpdate": "2026-02-08T03:32:46.340Z",
+    "uploadCount": 1
   }
 }
