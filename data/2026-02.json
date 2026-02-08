@@ -569,5 +569,24 @@
     "exceedDays": 1,
     "lastUpdate": "2026-02-08T03:33:06.965Z",
     "uploadCount": 1
+  },
+  "device_mxnrnfgd0_张飞龙": {
+    "userName": "张飞龙",
+    "userIndex": 32,
+    "deviceId": "device_mxnrnfgd0",
+    "dailyScores": {
+      "2026-02-01": 32,
+      "2026-02-02": 33,
+      "2026-02-03": 34,
+      "2026-02-04": 34,
+      "2026-02-05": 44,
+      "2026-02-06": 164,
+      "2026-02-07": 34,
+      "2026-02-08": 44
+    },
+    "monthlyTotal": 419,
+    "exceedDays": 8,
+    "lastUpdate": "2026-02-08T03:33:08.835Z",
+    "uploadCount": 1
   }
 }
