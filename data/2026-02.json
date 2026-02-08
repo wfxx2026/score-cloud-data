@@ -626,5 +626,24 @@
     "exceedDays": 1,
     "lastUpdate": "2026-02-08T03:33:12.586Z",
     "uploadCount": 1
+  },
+  "device_mxnrnfgd0_刘勇杰": {
+    "userName": "刘勇杰",
+    "userIndex": 35,
+    "deviceId": "device_mxnrnfgd0",
+    "dailyScores": {
+      "2026-02-01": 164,
+      "2026-02-02": 33,
+      "2026-02-03": 35,
+      "2026-02-04": 35,
+      "2026-02-05": 48,
+      "2026-02-06": 35,
+      "2026-02-07": 35,
+      "2026-02-08": 16
+    },
+    "monthlyTotal": 401,
+    "exceedDays": 4,
+    "lastUpdate": "2026-02-08T03:33:14.117Z",
+    "uploadCount": 1
   }
 }
