@@ -82,5 +82,26 @@
     "exceedDays": 0,
     "lastUpdate": "2026-02-10T15:43:58.473Z",
     "uploadCount": 1
+  },
+  "device_mxnrnfgd0_刘泽泽": {
+    "userName": "刘泽泽",
+    "userIndex": 5,
+    "deviceId": "device_mxnrnfgd0",
+    "dailyScores": {
+      "2026-02-01": 35,
+      "2026-02-02": 35,
+      "2026-02-03": 35,
+      "2026-02-04": 35,
+      "2026-02-05": 45,
+      "2026-02-06": 165,
+      "2026-02-07": 35,
+      "2026-02-08": 45,
+      "2026-02-09": 45,
+      "2026-02-10": 45
+    },
+    "monthlyTotal": 520,
+    "exceedDays": 0,
+    "lastUpdate": "2026-02-10T15:44:00.297Z",
+    "uploadCount": 1
   }
 }
