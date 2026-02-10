@@ -358,7 +358,7 @@
   },
   "device_mxnrnfgd0_权 伟": {
     "userName": "权 伟",
-    "userIndex": 18,
+    "userIndex": 19,
     "deviceId": "device_mxnrnfgd0",
     "dailyScores": {
       "2026-02-01": 165,
@@ -374,7 +374,7 @@
     },
     "monthlyTotal": 518,
     "exceedDays": 1,
-    "lastUpdate": "2026-02-10T15:44:26.022Z",
+    "lastUpdate": "2026-02-10T15:44:56.110Z",
     "uploadCount": 1
   }
 }
