@@ -5,26 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>全员答题分数云端管理</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- 引入 SheetJS 库用于导出 Excel -->
     <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        * {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-        }
-        
+        * { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
         .exceed-limit {
             background: linear-gradient(135deg, #ff4757 0%, #ff6348 100%) !important;
             color: white !important;
             font-weight: bold;
             animation: pulse-red 2s infinite;
         }
-        
         @keyframes pulse-red {
             0%, 100% { transform: scale(1); }
             50% { transform: scale(1.05); }
         }
-        
         .sticky-col {
             position: sticky;
             left: 0;
@@ -32,24 +26,19 @@
             z-index: 20;
             backdrop-filter: blur(10px);
         }
-        
         .glass-effect {
             background: rgba(255, 255, 255, 0.7);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.3);
         }
-
-        /* 月度汇总按钮样式 */
         .monthly-btn {
             background: linear-gradient(135deg, #10b981 0%, #059669 100%);
             transition: all 0.3s ease;
         }
-        
         .monthly-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
         }
-        
         .loading-spinner {
             border: 3px solid #f3f3f3;
             border-top: 3px solid #3b82f6;
@@ -58,36 +47,29 @@
             height: 40px;
             animation: spin 1s linear infinite;
         }
-        
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-        
         .fade-in {
             animation: fadeIn 0.5s ease-in;
         }
-        
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        
         ::-webkit-scrollbar {
             width: 8px;
             height: 8px;
         }
-        
         ::-webkit-scrollbar-track {
             background: #f1f1f1;
             border-radius: 4px;
         }
-        
         ::-webkit-scrollbar-thumb {
             background: #c1c1c1;
             border-radius: 4px;
         }
-        
         ::-webkit-scrollbar-thumb:hover {
             background: #a8a8a8;
         }
@@ -95,7 +77,6 @@
 </head>
 <body class="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 p-3 md:p-6">
     <div class="max-w-7xl mx-auto space-y-3">
-        
         <!-- 头部 -->
         <div class="glass-effect rounded-xl shadow-lg p-4 fade-in">
             <div class="flex flex-col md:flex-row justify-between items-center gap-3">
@@ -119,7 +100,6 @@
                 </div>
             </div>
         </div>
-
         <!-- 统计卡片 + 分数分布 合并行 -->
         <div class="grid grid-cols-1 lg:grid-cols-4 gap-3 fade-in" style="animation-delay: 0.1s">
             <!-- 左侧统计卡片 -->
@@ -141,7 +121,6 @@
                     <div class="text-gray-500 text-xs mt-0.5">最高总分</div>
                 </div>
             </div>
-            
             <!-- 右侧分数分布图表 -->
             <div class="lg:col-span-3 glass-effect rounded-lg shadow-lg p-3">
                 <div class="flex justify-between items-center mb-2">
@@ -155,7 +134,6 @@
                 </div>
             </div>
         </div>
-
         <!-- 数据表格 -->
         <div class="glass-effect rounded-xl shadow-xl overflow-hidden fade-in" style="animation-delay: 0.2s">
             <div class="p-3 border-b border-gray-200 flex justify-between items-center bg-white/50">
@@ -187,7 +165,6 @@
                 </table>
             </div>
         </div>
-
         <!-- 分数说明 -->
         <div class="glass-effect border-l-4 border-yellow-400 rounded-lg p-4 text-xs text-gray-700 fade-in" style="animation-delay: 0.3s">
             <h4 class="font-bold mb-2 text-sm flex items-center gap-2">
@@ -207,14 +184,12 @@
                 正常分数：45分、35分、165分、175分 ✅ | 其余分数均为异常 ⚠️
             </div>
         </div>
-
         <!-- 页脚 -->
         <div class="text-center text-gray-500 text-xs py-2 fade-in" style="animation-delay: 0.4s">
             <p>数据来自平台接口 | 仅供学习参考</p>
             <p class="mt-0.5">最后更新：<span id="lastUpdate">-</span></p>
         </div>
     </div>
-
     <script>
         // 正常分数白名单，不在此列表中的都是异常分数
         const NORMAL_SCORES = [45, 35, 165, 175];
@@ -224,19 +199,16 @@
         function generateMonthOptions() {
             const select = document.getElementById('monthSelect');
             const now = new Date();
-            
             for (let i = 0; i < 12; i++) {
                 const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
                 const value = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
                 const label = i === 0 ? '本月' : i === 1 ? '上个月' : `${d.getFullYear()}年${d.getMonth() + 1}月`;
-                
                 const option = document.createElement('option');
                 option.value = value;
                 option.textContent = label;
                 if (i === 0) option.selected = true;
                 select.appendChild(option);
             }
-            
             currentMonth = select.value;
             select.addEventListener('change', (e) => {
                 currentMonth = e.target.value;
@@ -254,11 +226,9 @@
                     </td>
                 </tr>
             `;
-            
             try {
                 const response = await fetch(`./data/${currentMonth}.json?t=${Date.now()}`);
                 if (!response.ok) throw new Error('暂无数据');
-                
                 const data = await response.json();
                 currentData = data;
                 renderData(data);
@@ -301,7 +271,6 @@
             // 异常人数：有任意一天分数不在白名单中
             const exceed = users.filter(u => Object.values(u.dailyScores || {}).some(s => !NORMAL_SCORES.includes(s))).length;
             const max = total > 0 ? Math.max(...users.map(u => u.monthlyTotal || 0)) : 0;
-
             animateNumber('stat-total', total);
             animateNumber('stat-avg', avg);
             animateNumber('stat-exceed', exceed);
@@ -313,20 +282,16 @@
             const start = parseInt(el.textContent) || 0;
             const duration = 500;
             const startTime = performance.now();
-
             function update(currentTime) {
                 const elapsed = currentTime - startTime;
                 const progress = Math.min(elapsed / duration, 1);
                 const easeProgress = 1 - Math.pow(1 - progress, 3);
                 const current = Math.round(start + (target - start) * easeProgress);
-                
                 el.textContent = current;
-                
                 if (progress < 1) {
                     requestAnimationFrame(update);
                 }
             }
-            
             requestAnimationFrame(update);
         }
 
@@ -336,23 +301,20 @@
                 container.innerHTML = '<div class="text-gray-400 w-full text-center text-sm">暂无数据</div>';
                 return;
             }
-
             // 取前15名（已经按分数排序）
             const topUsers = users.slice(0, 15);
             const maxScore = Math.max(...topUsers.map(u => u.monthlyTotal || 0), 1);
-
             container.innerHTML = topUsers.map(user => {
                 const score = user.monthlyTotal || 0;
                 // 检查是否有异常分数（不在白名单中）
                 const hasExceed = Object.values(user.dailyScores || {}).some(s => !NORMAL_SCORES.includes(s));
                 const height = maxScore > 0 ? (score / maxScore * 100) : 0;
-                
                 return `
                     <div class="flex flex-col items-center gap-0.5 min-w-[24px]">
                         <div class="text-[8px] text-gray-500 truncate w-full text-center" title="${user.userName}">
                             ${user.userName.substring(0, 2)}
                         </div>
-                        <div class="w-4 rounded-t-sm transition-all duration-500 hover:opacity-80 relative group cursor-pointer ${hasExceed ? 'exceed-limit' : 'bg-gradient-to-t from-blue-500 to-purple-500'}" 
+                        <div class="w-4 rounded-t-sm transition-all duration-500 hover:opacity-80 relative group cursor-pointer ${hasExceed ? 'exceed-limit' : 'bg-gradient-to-t from-blue-500 to-purple-500'}"
                              style="height: ${Math.max(height, 2)}%">
                             <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition pointer-events-none whitespace-nowrap z-10">
                                 ${user.userName}: ${score}分
@@ -368,7 +330,6 @@
             const dateSet = new Set();
             users.forEach(u => Object.keys(u.dailyScores || {}).forEach(d => dateSet.add(d)));
             const dates = Array.from(dateSet).sort();
-
             const header = document.getElementById('tableHeader');
             header.innerHTML = `
                 <th class="sticky-col px-3 py-2 text-left font-semibold text-gray-700 bg-gray-100 text-xs">排名</th>
@@ -383,7 +344,6 @@
                     </th>`;
                 }).join('')}
             `;
-
             const tbody = document.getElementById('tableBody');
             tbody.innerHTML = users.map((user, idx) => {
                 // 检查是否有异常分数
@@ -393,10 +353,8 @@
                     .filter(([_, s]) => !NORMAL_SCORES.includes(s))
                     .map(([d, s]) => `${d.slice(5)}(${s}分)`)
                     .join('、');
-                
                 // 🔥 使用排序后的排名（rank），而不是原始的 userIndex
                 const rank = user.rank || idx + 1;
-                
                 return `
                     <tr class="hover:bg-blue-50 transition ${hasExceed ? 'bg-red-50' : ''}">
                         <td class="sticky-col px-3 py-2 font-medium ${rank <= 3 ? 'text-yellow-600' : 'text-gray-600'} bg-white text-xs">
@@ -426,39 +384,30 @@
             }).join('');
         }
 
-        /**
-         * 导出Excel功能（使用SheetJS库）
-         * 支持样式设置、自动列宽、异常分数标红
-         */
         function exportExcel() {
             if (!currentData) {
                 alert('暂无数据可导出');
                 return;
             }
-
             // 获取用户数组并按分数排序（与显示一致）
             let users = Object.values(currentData).filter(u => u.userName);
             users.sort((a, b) => (b.monthlyTotal || 0) - (a.monthlyTotal || 0));
-            
             if (users.length === 0) {
                 alert('暂无数据可导出');
                 return;
             }
-
             // 收集所有日期
             const dateSet = new Set();
             users.forEach(u => Object.keys(u.dailyScores || {}).forEach(d => dateSet.add(d)));
             const dates = Array.from(dateSet).sort();
-
             // 准备表头
             const headers = ['排名', '用户名', '当月总分', '异常天数', ...dates];
-            
             // 准备数据行
             const dataRows = users.map((user, idx) => {
                 // 统计异常天数（分数不在白名单中）
                 const exceedDays = Object.values(user.dailyScores || {}).filter(s => !NORMAL_SCORES.includes(s)).length;
                 const row = [
-                    idx + 1,  // 使用分数排名
+                    idx + 1, // 使用分数排序后的排名
                     user.userName,
                     user.monthlyTotal || 0,
                     exceedDays,
@@ -466,14 +415,11 @@
                 ];
                 return row;
             });
-
             // 创建工作簿
             const wb = XLSX.utils.book_new();
-            
             // 创建工作表数据（包含表头）
             const wsData = [headers, ...dataRows];
             const ws = XLSX.utils.aoa_to_sheet(wsData);
-
             // 设置列宽（自动适应）
             const colWidths = headers.map((header, idx) => {
                 // 计算该列的最大长度
@@ -486,10 +432,8 @@
                 return { wch: Math.max(maxLen * 1.5 + 2, 10) };
             });
             ws['!cols'] = colWidths;
-
             // 设置行高
             ws['!rows'] = [{ hpx: 25 }, ...dataRows.map(() => ({ hpx: 20 }))];
-
             // 添加样式（异常分数标红）
             const range = XLSX.utils.decode_range(ws['!ref']);
             for (let R = 1; R <= range.e.r; ++R) { // 从第2行开始（跳过表头）
@@ -506,7 +450,6 @@
                     }
                 }
             }
-
             // 设置表头样式
             for (let C = 0; C <= range.e.c; ++C) {
                 const cellRef = XLSX.utils.encode_cell({ r: 0, c: C });
@@ -518,23 +461,18 @@
                     };
                 }
             }
-
             // 将工作表添加到工作簿
             XLSX.utils.book_append_sheet(wb, ws, "分数数据");
-
             // 生成文件名
             const fileName = `分数数据_${currentMonth}.xlsx`;
-
             // 使用 writeFile 方法直接下载（兼容性最好）
             try {
                 XLSX.writeFile(wb, fileName);
             } catch (e) {
                 // 如果 writeFile 失败（旧版浏览器），使用备用方案
                 console.warn('writeFile 失败，使用备用下载方案:', e);
-                
                 const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
                 const blob = new Blob([wbout], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-                
                 // 兼容性下载方案
                 if (window.navigator && window.navigator.msSaveOrOpenBlob) {
                     // IE 浏览器
@@ -545,7 +483,6 @@
                     const link = document.createElement('a');
                     link.href = url;
                     link.download = fileName;
-                    
                     // 针对 Safari 的特殊处理
                     if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
                         const reader = new FileReader();
@@ -559,7 +496,6 @@
                         link.click();
                         document.body.removeChild(link);
                     }
-                    
                     setTimeout(() => URL.revokeObjectURL(url), 1000);
                 }
             }
