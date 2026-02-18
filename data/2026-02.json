@@ -175,7 +175,7 @@
   },
   "device_nmbpgwzop_郭佳兴": {
     "userName": "郭佳兴",
-    "userIndex": 20,
+    "userIndex": 21,
     "deviceId": "device_nmbpgwzop",
     "dailyScores": {
       "2026-02-01": 165,
@@ -195,11 +195,11 @@
       "2026-02-15": 45,
       "2026-02-16": 45,
       "2026-02-17": 45,
-      "2026-02-18": 18
+      "2026-02-18": 45
     },
-    "monthlyTotal": 833,
-    "exceedDays": 1,
-    "lastUpdate": "2026-02-18T06:57:45.837Z",
+    "monthlyTotal": 860,
+    "exceedDays": 0,
+    "lastUpdate": "2026-02-18T14:41:12.226Z",
     "uploadCount": 1
   },
   "device_nmbpgwzop_张 聪": {
