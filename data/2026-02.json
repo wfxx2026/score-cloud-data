@@ -86,35 +86,6 @@
     "lastUpdate": "2026-02-17T16:28:05.660Z",
     "uploadCount": 1
   },
-  "device_nmbpgwzop_史晓龙": {
-    "userName": "史晓龙",
-    "userIndex": 19,
-    "deviceId": "device_nmbpgwzop",
-    "dailyScores": {
-      "2026-02-01": 35,
-      "2026-02-02": 35,
-      "2026-02-03": 165,
-      "2026-02-04": 35,
-      "2026-02-05": 45,
-      "2026-02-06": 35,
-      "2026-02-07": 35,
-      "2026-02-08": 45,
-      "2026-02-09": 45,
-      "2026-02-10": 45,
-      "2026-02-11": 35,
-      "2026-02-12": 45,
-      "2026-02-13": 35,
-      "2026-02-14": 45,
-      "2026-02-15": 45,
-      "2026-02-16": 45,
-      "2026-02-17": 45,
-      "2026-02-18": 0
-    },
-    "monthlyTotal": 815,
-    "exceedDays": 0,
-    "lastUpdate": "2026-02-17T16:39:46.994Z",
-    "uploadCount": 1
-  },
   "device_nmbpgwzop_惠智诚": {
     "userName": "惠智诚",
     "userIndex": 19,
@@ -519,6 +490,24 @@
     "monthlyTotal": 815,
     "exceedDays": 0,
     "lastUpdate": "2026-02-17T16:26:46.947Z",
+    "uploadCount": 1
+  },
+  "device_nmbpgwzop_史晓龙": {
+    "userName": "史晓龙",
+    "userIndex": 18,
+    "deviceId": "device_nmbpgwzop",
+    "dailyScores": {
+      "2026-02-12": 45,
+      "2026-02-13": 35,
+      "2026-02-14": 45,
+      "2026-02-15": 45,
+      "2026-02-16": 45,
+      "2026-02-17": 45,
+      "2026-02-18": 45
+    },
+    "monthlyTotal": 305,
+    "exceedDays": 0,
+    "lastUpdate": "2026-02-18T06:16:00.869Z",
     "uploadCount": 1
   }
 }
