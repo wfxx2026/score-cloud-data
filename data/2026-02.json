@@ -497,7 +497,7 @@
   },
   "device_nmbpgwzop_王思琦": {
     "userName": "王思琦",
-    "userIndex": 20,
+    "userIndex": 21,
     "deviceId": "device_nmbpgwzop",
     "dailyScores": {
       "2026-02-01": 35,
@@ -521,8 +521,7 @@
     },
     "monthlyTotal": 860,
     "exceedDays": 0,
-    "systemRank": 6,
-    "lastUpdate": "2026-02-18T14:29:04.209Z",
+    "lastUpdate": "2026-02-18T14:41:04.270Z",
     "uploadCount": 1
   },
   "device_nmbpgwzop_任泽": {
