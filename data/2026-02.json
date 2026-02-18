@@ -381,7 +381,7 @@
   },
   "device_nmbpgwzop_张良收": {
     "userName": "张良收",
-    "userIndex": 20,
+    "userIndex": 21,
     "deviceId": "device_nmbpgwzop",
     "dailyScores": {
       "2026-02-01": 165,
@@ -405,8 +405,7 @@
     },
     "monthlyTotal": 860,
     "exceedDays": 0,
-    "systemRank": 2,
-    "lastUpdate": "2026-02-18T14:28:55.397Z",
+    "lastUpdate": "2026-02-18T14:40:54.742Z",
     "uploadCount": 1
   },
   "device_nmbpgwzop_惠智诚": {
