@@ -555,7 +555,7 @@
   },
   "device_nmbpgwzop_权 伟": {
     "userName": "权 伟",
-    "userIndex": 20,
+    "userIndex": 21,
     "deviceId": "device_nmbpgwzop",
     "dailyScores": {
       "2026-02-01": 165,
@@ -579,8 +579,7 @@
     },
     "monthlyTotal": 860,
     "exceedDays": 3,
-    "systemRank": 9,
-    "lastUpdate": "2026-02-18T14:30:07.481Z",
+    "lastUpdate": "2026-02-18T14:41:09.864Z",
     "uploadCount": 1
   }
 }
