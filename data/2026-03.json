@@ -1,21 +1,4 @@
 {
-  "device_nmbpgwzop_王佳营": {
-    "userName": "王佳营",
-    "userIndex": 3,
-    "deviceId": "device_nmbpgwzop",
-    "dailyScores": {
-      "2026-03-01": 175,
-      "2026-03-02": 45,
-      "2026-03-03": 35,
-      "2026-03-04": 45,
-      "2026-03-05": 45
-    },
-    "monthlyTotal": 345,
-    "exceedDays": 0,
-    "systemRank": 3,
-    "lastUpdate": "2026-03-05T12:25:34.853Z",
-    "uploadCount": 1
-  },
   "device_nmbpgwzop_马 英": {
     "userName": "马 英",
     "userIndex": 4,
@@ -133,6 +116,23 @@
     "exceedDays": 0,
     "systemRank": 1,
     "lastUpdate": "2026-03-05T12:26:10.741Z",
+    "uploadCount": 1
+  },
+  "device_nmbpgwzop_王佳营": {
+    "userName": "王佳营",
+    "userIndex": 8,
+    "deviceId": "device_nmbpgwzop",
+    "dailyScores": {
+      "2026-03-01": 175,
+      "2026-03-02": 45,
+      "2026-03-03": 35,
+      "2026-03-04": 45,
+      "2026-03-05": 45
+    },
+    "monthlyTotal": 345,
+    "exceedDays": 0,
+    "systemRank": 3,
+    "lastUpdate": "2026-03-05T12:26:15.742Z",
     "uploadCount": 1
   }
 }
