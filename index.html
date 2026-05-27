@@ -151,7 +151,7 @@
                         <tr id="tableHeader">
                             <th class="sticky-col px-3 py-2 text-left font-semibold text-gray-700 text-xs">排名</th>
                             <th class="sticky-col px-3 py-2 text-left font-semibold text-gray-700 text-xs" style="left: 60px;">用户名</th>
-                            <th class="px-3 py-2 text-center font-semibold text-blue-600 bg-blue-50 text-xs">当月总分</th>
+                            <th class="px-3 py-2 text-center font-semibold text-blue-600 bg-blue-50 text-xs min-w-[80px] whitespace-nowrap">当月总分</th>
                         </tr>
                     </thead>
                     <tbody id="tableBody">
@@ -334,7 +334,7 @@
             header.innerHTML = `
                 <th class="sticky-col px-3 py-2 text-left font-semibold text-gray-700 bg-gray-100 text-xs">排名</th>
                 <th class="sticky-col px-3 py-2 text-left font-semibold text-gray-700 bg-gray-100 text-xs" style="left: 60px;">用户名</th>
-                <th class="px-3 py-2 text-center font-semibold text-blue-600 bg-blue-50 text-xs">当月总分</th>
+                <th class="px-3 py-2 text-center font-semibold text-blue-600 bg-blue-50 text-xs min-w-[80px] whitespace-nowrap">当月总分</th>
                 ${dates.map(d => {
                     const day = new Date(d).getDate();
                     const weekday = ['日', '一', '二', '三', '四', '五', '六'][new Date(d).getDay()];
@@ -366,7 +366,7 @@
                                 ${hasExceed ? `<span class="text-red-500 text-xs" title="异常日期：${exceedDays}">⚠️</span>` : ''}
                             </div>
                         </td>
-                        <td class="px-3 py-2 text-center font-bold text-blue-600 bg-blue-50/50 text-xs">${user.monthlyTotal || 0}</td>
+                        <td class="px-3 py-2 text-center font-bold text-blue-600 bg-blue-50/50 text-xs min-w-[80px] whitespace-nowrap">${user.monthlyTotal || 0}</td>
                         ${dates.map(date => {
                             const score = (user.dailyScores || {})[date] || 0;
                             // 检查是否为异常分数
@@ -511,5 +511,68 @@
             loadData();
         });
     </script>
+
+<!-- 弹窗提示 -->
+<div id="welcomeModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm hidden">
+    <div class="bg-white rounded-2xl shadow-2xl p-6 max-w-md w-full mx-4 transform transition-all scale-95 opacity-0" id="modalContent">
+        <div class="flex items-center gap-3 mb-4">
+            <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            </div>
+            <h3 class="text-lg font-bold text-gray-800">使用提示</h3>
+        </div>
+        <div class="space-y-3 text-sm text-gray-600">
+            <p class="flex items-start gap-2">
+                <span class="text-blue-500 mt-0.5">📅</span>
+                <span>点击左上角<strong class="text-blue-600">月份下拉框</strong>可查看历史月份积分数据</span>
+            </p>
+            <div class="bg-gray-50 rounded-lg p-3">
+                <p class="font-medium text-gray-700 mb-2">📊 正常积分标准：</p>
+                <div class="flex flex-wrap gap-2">
+                    <span class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-medium">45分</span>
+                    <span class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-medium">35分</span>
+                    <span class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-medium">175分</span>
+                    <span class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-medium">165分</span>
+                </div>
+                <p class="mt-2 text-xs text-red-500">⚠️ 其余分数均为异常学习积分，已标红警示</p>
+            </div>
+        </div>
+        <button onclick="closeModal()" class="mt-5 w-full py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition transform hover:scale-[1.02] active:scale-95">
+            我知道了
+        </button>
+    </div>
+</div>
+
+<style>
+    #welcomeModal.hidden { display: none !important; }
+    #welcomeModal:not(.hidden) #modalContent {
+        animation: modalIn 0.3s ease forwards;
+    }
+    @keyframes modalIn {
+        from { transform: scale(0.95); opacity: 0; }
+        to { transform: scale(1); opacity: 1; }
+    }
+</style>
+
+<script>
+    function showModal() {
+        const modal = document.getElementById('welcomeModal');
+        modal.classList.remove('hidden');
+    }
+    function closeModal() {
+        const modal = document.getElementById('welcomeModal');
+        modal.classList.add('hidden');
+        // 记录已关闭，下次不再自动弹出（可选）
+        localStorage.setItem('modalShown', 'true');
+    }
+    // 页面加载后自动显示弹窗（首次访问）
+    document.addEventListener('DOMContentLoaded', () => {
+        // 如果希望每次刷新都显示，注释掉下面这行
+        // if (!localStorage.getItem('modalShown')) {
+            setTimeout(showModal, 500);
+        // }
+    });
+</script>
+
 </body>
 </html>
